@@ -52,28 +52,14 @@ public class Department
 
     public IReadOnlyList<DepartmentPosition> Positions => _positions;
 
-    public static Result<Department> Create(
-        string identifier,
-        string name,
+    public static Department Create(
+        DepartmentIdentifier identifier,
+        CorrectName name,
         Department? parent)
     {
-        var nameResult = CorrectName.Create(name, 150);
+        var path = DepartmentPath.Create(identifier, parent);
 
-        if (nameResult.IsFailure)
-        {
-            return Result.Failure<Department>(nameResult.Error);
-        }
-
-        var identifierResult = DepartmentIdentifier.Create(identifier);
-
-        if (identifierResult.IsFailure)
-        {
-            return Result.Failure<Department>(identifierResult.Error);
-        }
-
-        var path = DepartmentPath.Create(identifierResult.Value, parent);
-
-        return new Department(nameResult.Value, identifierResult.Value, path, parent);
+        return new Department(name, identifier, path, parent);
     }
 
     public Result AddDepartmentPositions(IEnumerable<DepartmentPosition> positions)
