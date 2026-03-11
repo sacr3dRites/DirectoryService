@@ -1,0 +1,33 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+namespace DirectoryService.Infrastructure;
+
+public static class DependencyInjectionExtensions
+{
+    public static IServiceCollection AddDirectoryService(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddDbContextPool<DirectoryServiceDbContext>((sp, options) =>
+        {
+            var connectionString = configuration.GetConnectionString("DirectoryServiceDb");
+
+            IHostEnvironment hostEnvironment = sp.GetRequiredService<IHostEnvironment>();
+            ILoggerFactory loggerFactory = sp.GetRequiredService<ILoggerFactory>();
+
+            options.UseNpgsql(connectionString);
+
+            if (hostEnvironment.IsDevelopment())
+            {
+                options.EnableSensitiveDataLogging();
+                options.EnableDetailedErrors();
+            }
+
+            options.UseLoggerFactory(loggerFactory);
+        });
+
+        return services;
+    }
+}

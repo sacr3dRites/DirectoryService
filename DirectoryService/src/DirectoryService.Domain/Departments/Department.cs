@@ -11,6 +11,11 @@ public class Department
     private List<DepartmentLocation> _locations = [];
     private List<Department> _children = [];
 
+    private Department()
+    {
+        
+    }
+    
     private Department(
         CorrectName name,
         DepartmentIdentifier identifier,

@@ -7,7 +7,6 @@ public class Position
 {
     private const int MAX_DESCRIPTION_LENGTH = 1000;
 
-    //EFCore
     private Position()
     {
     }

@@ -9,7 +9,6 @@ public class Location
 {
     private List<DepartmentLocation> _departments = [];
 
-    //EFCore
     private Location()
     {
     }
@@ -33,7 +32,7 @@ public class Location
 
     public Timezone Timezone { get; private set; }
 
-    private bool IsActive { get; set; }
+    public bool IsActive { get; set; }
 
     public DateTime CreatedAt { get; private set; }
 
