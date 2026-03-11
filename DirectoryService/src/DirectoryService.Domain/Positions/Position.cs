@@ -7,6 +7,11 @@ public class Position
 {
     private const int MAX_DESCRIPTION_LENGTH = 1000;
 
+    //EFCore
+    private Position()
+    {
+    }
+
     private Position(CorrectName name, string description)
     {
         Id = Guid.NewGuid();
@@ -48,20 +53,13 @@ public class Position
         this.UpdatedAt = DateTime.UtcNow;
     }
 
-    public static Result<Position> Create(string name, string description)
+    public static Result<Position> Create(CorrectName name, string description)
     {
         if (description.Length > MAX_DESCRIPTION_LENGTH)
         {
             return Result.Failure<Position>("Размер описания должен быть не больше либо равен 1000 знакам");
         }
 
-        var correctNameResult = CorrectName.Create(name, 120);
-
-        if (correctNameResult.IsFailure)
-        {
-            return Result.Failure<Position>(correctNameResult.Error);
-        }
-
-        return new Position(correctNameResult.Value, description);
+        return new Position(name, description);
     }
 }

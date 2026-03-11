@@ -9,6 +9,11 @@ public class Location
 {
     private List<DepartmentLocation> _departments = [];
 
+    //EFCore
+    private Location()
+    {
+    }
+
     private Location(CorrectName name, LocationAddress locationAddress, Timezone timezone)
     {
         Id = Guid.NewGuid();
@@ -76,29 +81,8 @@ public class Location
         this.UpdatedAt = DateTime.UtcNow;
     }
 
-    public static Result<Location> Create(string name, string address, string timezone)
+    public static Location Create(CorrectName name, LocationAddress address, Timezone timezone)
     {
-        var correctNameResult = CorrectName.Create(name, 120);
-
-        if (correctNameResult.IsFailure)
-        {
-            return Result.Failure<Location>(correctNameResult.Error);
-        }
-
-        var addressResult = LocationAddress.Create(address);
-
-        if (addressResult.IsFailure)
-        {
-            return Result.Failure<Location>(addressResult.Error);
-        }
-
-        var timezoneResult = Timezone.Create(timezone);
-
-        if (timezoneResult.IsFailure)
-        {
-            return Result.Failure<Location>(timezoneResult.Error);
-        }
-
-        return new Location(correctNameResult.Value, addressResult.Value, timezoneResult.Value);
+        return new Location(name, address, timezone);
     }
 }
