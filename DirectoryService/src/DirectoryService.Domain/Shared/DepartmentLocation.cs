@@ -6,6 +6,10 @@ namespace DirectoryService.Domain.Shared;
 
 public class DepartmentLocation
 {
+    private DepartmentLocation()
+    {
+    }
+
     private DepartmentLocation(Guid locationId, Guid departmentId, Location location, Department department)
     {
         DepartmentLocationId = Guid.NewGuid();

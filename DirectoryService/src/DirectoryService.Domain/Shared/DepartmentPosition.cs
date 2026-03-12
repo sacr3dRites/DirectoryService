@@ -6,6 +6,10 @@ namespace DirectoryService.Domain.Shared;
 
 public class DepartmentPosition
 {
+    private DepartmentPosition()
+    {
+    }
+
     private DepartmentPosition(Guid positionId, Guid departmentId, Position position, Department department)
     {
         DepartmentPositionId = Guid.NewGuid();
