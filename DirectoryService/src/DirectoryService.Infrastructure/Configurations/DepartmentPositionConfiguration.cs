@@ -11,6 +11,8 @@ public class DepartmentPositionConfiguration : IEntityTypeConfiguration<Departme
         builder.ToTable("department_positions");
         builder.HasKey(dp => dp.DepartmentPositionId).HasName("pk_department_position");
 
+        builder.Property(dp => dp.DepartmentPositionId).HasColumnName("department_position_id");
+
         builder.Property(dp => dp.DepartmentId)
             .HasColumnName("department_id");
 

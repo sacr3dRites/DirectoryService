@@ -2,10 +2,6 @@
 
 public record DepartmentPath
 {
-    private DepartmentPath()
-    {
-    }
-
     private DepartmentPath(string value)
     {
         Value = value;

@@ -5,8 +5,6 @@ namespace DirectoryService.Domain;
 
 public record LocationAddress
 {
-    private LocationAddress() { }
-
     private LocationAddress(string value)
     {
         Value = value;

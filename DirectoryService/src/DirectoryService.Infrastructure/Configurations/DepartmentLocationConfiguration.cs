@@ -12,6 +12,8 @@ public class DepartmentLocationConfiguration : IEntityTypeConfiguration<Departme
 
         builder.HasKey(dl => dl.DepartmentLocationId).HasName("pk_department_location");
 
+        builder.Property(dl => dl.DepartmentLocationId).HasColumnName("department_location_id");
+
         builder.Property(dl => dl.DepartmentId)
             .HasColumnName("department_id");
 

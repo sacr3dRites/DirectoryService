@@ -4,8 +4,6 @@ namespace DirectoryService.Domain.Locations.ValueObjects;
 
 public record Timezone
 {
-    private Timezone() { }
-
     private Timezone(string name)
     {
         Name = name;

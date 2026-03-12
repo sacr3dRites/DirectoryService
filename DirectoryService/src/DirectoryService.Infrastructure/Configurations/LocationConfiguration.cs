@@ -13,6 +13,8 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
         builder.ToTable("locations");
         builder.HasKey(l => l.Id).HasName("pk_location");
 
+        builder.Property(l => l.Id).HasColumnName("id");
+
         builder.Property(l => l.LocationAddress)
             .HasConversion(l => l.Value, address => LocationAddress.Create(address).Value)
             .HasColumnName("location_address");

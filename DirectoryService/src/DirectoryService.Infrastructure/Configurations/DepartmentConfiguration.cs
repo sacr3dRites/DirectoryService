@@ -14,6 +14,8 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
 
         builder.HasKey(d => d.Id).HasName("pk_department");
 
+        builder.Property(d => d.Id).HasColumnName("id");
+
         builder.Property(d => d.Identifier)
             .HasConversion(d => d.Value, identifier => DepartmentIdentifier.Create(identifier).Value)
             .HasColumnName("identifier")
