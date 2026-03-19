@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DirectoryService.Domain.Locations;
+using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Infrastructure;
 
@@ -8,6 +9,8 @@ public class DirectoryServiceDbContext : DbContext
         : base(options)
     {
     }
+
+    public DbSet<Location> Locations => Set<Location>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
