@@ -1,5 +1,4 @@
 ﻿using CSharpFunctionalExtensions;
-using DirectoryService.Domain.SharedValueObjects;
 
 namespace DirectoryService.Domain.Positions;
 
@@ -11,7 +10,7 @@ public class Position
     {
     }
 
-    private Position(CorrectName name, string description)
+    private Position(CorrectPositionName name, string description)
     {
         Id = Guid.NewGuid();
         Name = name;
@@ -23,7 +22,7 @@ public class Position
 
     public Guid Id { get; private set; }
 
-    public CorrectName Name { get; private set; }
+    public CorrectPositionName Name { get; private set; }
 
     public string? Description { get; private set; }
 
@@ -52,7 +51,7 @@ public class Position
         this.UpdatedAt = DateTime.UtcNow;
     }
 
-    public static Result<Position> Create(CorrectName name, string description)
+    public static Result<Position> Create(CorrectPositionName name, string description)
     {
         if (description.Length > MAX_DESCRIPTION_LENGTH)
         {

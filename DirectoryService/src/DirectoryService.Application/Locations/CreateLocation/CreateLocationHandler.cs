@@ -1,12 +1,12 @@
-﻿using DirectoryService.Application.Abstractions;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.Application.Abstractions;
 using DirectoryService.Domain;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Locations.ValueObjects;
-using DirectoryService.Domain.SharedValueObjects;
 
 namespace DirectoryService.Application.Locations.CreateLocation;
 
-public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand>
+public class CreateLocationHandler : ICommandHandler<Result<Guid>, CreateLocationCommand>
 {
     private readonly ILocationsRepository _repository;
 
@@ -15,34 +15,22 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
         _repository = repository;
     }
 
-    public Task<Guid> Handle(CreateLocationCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(CreateLocationCommand request, CancellationToken cancellationToken)
     {
         // проверка валидности
 
         // создание Location
 
-        var name = CorrectName.Create(
-            request.CreateLocationDto.Name,
-            DirectoryServiceConstants.LOCATION_NAME_MAX_LENGTH);
+        var name = CorrectLocationName.Create(request.CreateLocationDto.Name);
 
         var address = LocationAddress.Create(request.CreateLocationDto.Address);
 
         var timezone = Timezone.Create(request.CreateLocationDto.Timezone);
 
-        if (timezone.IsFailure)
-        {
-            throw new Exception(timezone.Error);
-        }
+        var result = Result.Combine(name, address, timezone);
 
-        if (name.IsFailure)
-        {
-            throw new Exception(name.Error);
-        }
-
-        if (address.IsFailure)
-        {
-            throw new Exception(address.Error);
-        }
+        if (result.IsFailure)
+            return Result.Failure<Guid>(result.Error);
 
 
         var location = Location.Create(
@@ -53,10 +41,10 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
 
         // сохранение Location в БД
 
-        _repository.AddAsync(location, cancellationToken);
+        await _repository.AddAsync(location, cancellationToken);
 
         // Логгирование об успешном или неуспешном сохранении
 
-        return Task.FromResult(location.Id);
+        return Result.Success(location.Id);
     }
 }

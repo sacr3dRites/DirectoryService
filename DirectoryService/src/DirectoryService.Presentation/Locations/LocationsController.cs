@@ -1,3 +1,4 @@
+using CSharpFunctionalExtensions;
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Locations.CreateLocation;
 using DirectoryService.Contracts.Locations;
@@ -11,13 +12,18 @@ public class LocationsController : ControllerBase
 {
     [HttpPost]
     public async Task<ActionResult<Guid>> Create(
-        [FromServices] ICommandHandler<Guid, CreateLocationCommand> commandHandler,
+        [FromServices] ICommandHandler<Result<Guid>, CreateLocationCommand> commandHandler,
         [FromBody] CreateLocationDto request,
         CancellationToken cancellationToken
     )
     {
         var command = new CreateLocationCommand(request);
 
-        return await commandHandler.Handle(command, cancellationToken);
+        var result = await commandHandler.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(result.Error);
+
+        return Ok(result.Value);
     }
 }

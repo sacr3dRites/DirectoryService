@@ -1,7 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Shared;
-using DirectoryService.Domain.SharedValueObjects;
 
 namespace DirectoryService.Domain.Departments;
 
@@ -13,11 +12,10 @@ public class Department
 
     private Department()
     {
-        
     }
-    
+
     private Department(
-        CorrectName name,
+        CorrectDepartmentName name,
         DepartmentIdentifier identifier,
         DepartmentPath path,
         Department? parent)
@@ -35,7 +33,7 @@ public class Department
 
     public Guid Id { get; }
 
-    public CorrectName Name { get; private set; }
+    public CorrectDepartmentName Name { get; private set; }
 
     public DepartmentIdentifier Identifier { get; private set; }
 
@@ -59,7 +57,7 @@ public class Department
 
     public static Department Create(
         DepartmentIdentifier identifier,
-        CorrectName name,
+        CorrectDepartmentName name,
         Department? parent)
     {
         var path = DepartmentPath.Create(identifier, parent);
