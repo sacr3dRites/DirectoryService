@@ -58,7 +58,7 @@ namespace DirectoryService.Infrastructure.Migrations
                     b.Property<Guid?>("parent_id")
                         .HasColumnType("uuid");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Name", "DirectoryService.Domain.Departments.Department.Name#CorrectName", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("Name", "DirectoryService.Domain.Departments.Department.Name#CorrectDepartmentName", b1 =>
                         {
                             b1.IsRequired();
 
@@ -119,7 +119,7 @@ namespace DirectoryService.Infrastructure.Migrations
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("timezone('utc',now())");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Name", "DirectoryService.Domain.Locations.Location.Name#CorrectName", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("Name", "DirectoryService.Domain.Locations.Location.Name#CorrectLocationName", b1 =>
                         {
                             b1.IsRequired();
 
@@ -162,7 +162,7 @@ namespace DirectoryService.Infrastructure.Migrations
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("timezone('utc',now())");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Name", "DirectoryService.Domain.Positions.Position.Name#CorrectName", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("Name", "DirectoryService.Domain.Positions.Position.Name#CorrectPositionName", b1 =>
                         {
                             b1.IsRequired();
 

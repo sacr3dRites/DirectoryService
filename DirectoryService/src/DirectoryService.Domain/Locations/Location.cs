@@ -1,7 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Domain.Locations.ValueObjects;
 using DirectoryService.Domain.Shared;
-using DirectoryService.Domain.SharedValueObjects;
 
 namespace DirectoryService.Domain.Locations;
 
@@ -13,7 +12,7 @@ public class Location
     {
     }
 
-    private Location(CorrectName name, LocationAddress locationAddress, Timezone timezone)
+    private Location(CorrectLocationName name, LocationAddress locationAddress, Timezone timezone)
     {
         Id = Guid.NewGuid();
         Name = name;
@@ -26,7 +25,7 @@ public class Location
 
     public Guid Id { get; private set; }
 
-    public CorrectName Name { get; private set; }
+    public CorrectLocationName Name { get; private set; }
 
     public LocationAddress LocationAddress { get; private set; }
 
@@ -80,7 +79,7 @@ public class Location
         this.UpdatedAt = DateTime.UtcNow;
     }
 
-    public static Location Create(CorrectName name, LocationAddress address, Timezone timezone)
+    public static Location Create(CorrectLocationName name, LocationAddress address, Timezone timezone)
     {
         return new Location(name, address, timezone);
     }
