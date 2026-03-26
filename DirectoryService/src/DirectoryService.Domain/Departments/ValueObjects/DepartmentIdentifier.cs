@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
+using DirectoryService.Shared;
 
-namespace DirectoryService.Domain;
+namespace DirectoryService.Domain.Departments.ValueObjects;
 
 public record DepartmentIdentifier
 {
@@ -14,18 +15,23 @@ public record DepartmentIdentifier
 
     public string Value { get; }
 
-    public static Result<DepartmentIdentifier> Create(string identifier)
+    public static Result<DepartmentIdentifier, Errors> Create(string identifier)
     {
+        var errors = new List<Error>();
+
         if (identifier.Length > MAX_LENGTH || identifier.Length < MIN_LENGTH)
         {
-            return Result.Failure<DepartmentIdentifier>("Некорректная длина идентификатора");
+            errors.Add(GeneralErrors.ValueIsInvalid("длина идентификатора"));
         }
 
         if (string.IsNullOrWhiteSpace(identifier))
         {
-            return Result.Failure<DepartmentIdentifier>("Некорректный идентификатор");
+            errors.Add(GeneralErrors.ValueIsInvalid("идентификатор"));
         }
 
-        return Result.Success(new DepartmentIdentifier(identifier));
+        if (errors.Any())
+            return new Errors(errors);
+
+        return new DepartmentIdentifier(identifier);
     }
 }

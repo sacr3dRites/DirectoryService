@@ -3,10 +3,12 @@ using DirectoryService.Application.Abstractions;
 using DirectoryService.Domain;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Locations.ValueObjects;
+using DirectoryService.Shared;
+using DirectoryService.Shared.EndpointResults;
 
 namespace DirectoryService.Application.Locations.CreateLocation;
 
-public class CreateLocationHandler : ICommandHandler<Result<Guid>, CreateLocationCommand>
+public class CreateLocationHandler : ICommandHandler<Result<Guid, Errors>, CreateLocationCommand>
 {
     private readonly ILocationsRepository _repository;
 
@@ -15,7 +17,7 @@ public class CreateLocationHandler : ICommandHandler<Result<Guid>, CreateLocatio
         _repository = repository;
     }
 
-    public async Task<Result<Guid>> Handle(CreateLocationCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid, Errors>> Handle(CreateLocationCommand request, CancellationToken cancellationToken)
     {
         // проверка валидности
 
@@ -27,10 +29,14 @@ public class CreateLocationHandler : ICommandHandler<Result<Guid>, CreateLocatio
 
         var timezone = Timezone.Create(request.CreateLocationDto.Timezone);
 
-        var result = Result.Combine(name, address, timezone);
+        if (name.IsFailure)
+            return name.Error;
 
-        if (result.IsFailure)
-            return Result.Failure<Guid>(result.Error);
+        if (address.IsFailure)
+            return address.Error;
+
+        if (timezone.IsFailure)
+            return timezone.Error;
 
 
         var location = Location.Create(
@@ -45,6 +51,6 @@ public class CreateLocationHandler : ICommandHandler<Result<Guid>, CreateLocatio
 
         // Логгирование об успешном или неуспешном сохранении
 
-        return Result.Success(location.Id);
+        return location.Id;
     }
 }

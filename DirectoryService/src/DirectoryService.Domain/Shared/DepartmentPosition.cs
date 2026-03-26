@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Positions;
+using DirectoryService.Shared;
 
 namespace DirectoryService.Domain.Shared;
 
@@ -29,13 +30,18 @@ public class DepartmentPosition
 
     public Department Department { get; }
 
-    public static Result<DepartmentPosition> Create(Position position, Department department)
+    public static Result<DepartmentPosition, Errors> Create(Position position, Department department)
     {
-        if (position is null)
-            return Result.Failure<DepartmentPosition>("Позиция не может быть null");
-        if (department is null)
-            return Result.Failure<DepartmentPosition>("Подразделение не может быть null");
+        var errors = new List<Error>();
 
-        return Result.Success(new DepartmentPosition(position.Id, department.Id, position, department));
+        if (position is null)
+            errors.Add(GeneralErrors.ValueIsRequired("позиция"));
+        if (department is null)
+            errors.Add(GeneralErrors.ValueIsRequired("подразделение"));
+
+        if (errors.Any())
+            return new Errors(errors);
+
+        return new DepartmentPosition(position.Id, department.Id, position, department);
     }
 }

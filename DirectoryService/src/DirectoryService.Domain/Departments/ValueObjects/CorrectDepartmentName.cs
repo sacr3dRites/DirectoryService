@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DirectoryService.Shared;
 
 namespace DirectoryService.Domain.Departments.ValueObjects;
 
@@ -19,18 +20,20 @@ public record CorrectDepartmentName
         set => _value = value;
     }
 
-    public static Result<CorrectDepartmentName> Create(string value)
+    public static Result<CorrectDepartmentName, Errors> Create(string value)
     {
+        var errors = new List<Error>();
+
         if (string.IsNullOrWhiteSpace(value))
-        {
-            return Result.Failure<CorrectDepartmentName>("Некорректное имя департамента");
-        }
+            errors.Add(GeneralErrors.ValueIsInvalid("имя департамента"));
 
         if (value.Length < MIN_LENGTH || value.Length > MAX_LENGTH)
-        {
-            return Result.Failure<CorrectDepartmentName>("Некорректная длина имени департамента");
-        }
+            errors.Add(GeneralErrors.ValueIsInvalid("длина имени департамента"));
 
-        return Result.Success(new CorrectDepartmentName(value));
+        if (errors.Any())
+            return new Errors(errors);
+
+
+        return new CorrectDepartmentName(value);
     }
 }
