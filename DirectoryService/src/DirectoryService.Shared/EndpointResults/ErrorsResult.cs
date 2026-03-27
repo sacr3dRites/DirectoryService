@@ -8,7 +8,7 @@ public class ErrorsResult : IResult
 
     public ErrorsResult(Error error)
     {
-        _errors = error.ToErrors;
+        _errors = error.ToErrors();
     }
 
     public ErrorsResult(Errors error)

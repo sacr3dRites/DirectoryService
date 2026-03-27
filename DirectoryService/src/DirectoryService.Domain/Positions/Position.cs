@@ -57,7 +57,7 @@ public class Position
         if (description.Length > MAX_DESCRIPTION_LENGTH)
         {
             return Error.Validation("value.is.invalid", "Размер описания должен быть не больше либо равен 1000 знакам")
-                .ToErrors;
+                .ToErrors();
         }
 
         return new Position(name, description);

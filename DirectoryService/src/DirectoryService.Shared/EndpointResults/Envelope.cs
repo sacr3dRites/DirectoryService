@@ -4,11 +4,11 @@ namespace DirectoryService.Shared.EndpointResults;
 
 public record Envelope
 {
-    public object? Result;
+    public object? Result { get; }
 
-    public Errors Errors;
+    public Errors Errors { get; }
 
-    public DateTime TimeGenerated;
+    public DateTime TimeGenerated { get; }
 
     [JsonConstructor]
     private Envelope(object? result, Errors errors)
@@ -22,16 +22,16 @@ public record Envelope
         new(result, null);
 
     public static Envelope Error(Errors errors) =>
-        new(default, errors);
+        new(null, errors);
 }
 
 public record Envelope<T>
 {
-    public T? Result;
+    public T? Result { get; }
 
-    public Errors Errors;
+    public Errors Errors { get; }
 
-    public DateTime TimeGenerated;
+    public DateTime TimeGenerated { get; }
 
     [JsonConstructor]
     private Envelope(T? result, Errors errors)

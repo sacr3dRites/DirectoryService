@@ -25,9 +25,6 @@ public sealed class EndpointResult<TValue> : IResult, IEndpointMetadataProvider
             : new ErrorsResult(result.Error);
     }
 
-    public Task ExecuteAsync(HttpContext httpContext) =>
-        _result.ExecuteAsync(httpContext);
-
     public static void PopulateMetadata(MethodInfo method, EndpointBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(method, nameof(method));
@@ -42,6 +39,9 @@ public sealed class EndpointResult<TValue> : IResult, IEndpointMetadataProvider
         builder.Metadata.Add(new ProducesResponseTypeMetadata(403, typeof(Envelope<TValue>), ["application/json"]));
         builder.Metadata.Add(new ProducesResponseTypeMetadata(409, typeof(Envelope<TValue>), ["application/json"]));
     }
+
+    public Task ExecuteAsync(HttpContext httpContext) =>
+        _result.ExecuteAsync(httpContext);
 
     public static implicit operator EndpointResult<TValue>(Result<TValue, Error> result) =>
         new(result);
