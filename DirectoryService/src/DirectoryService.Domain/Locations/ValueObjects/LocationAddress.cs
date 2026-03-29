@@ -1,7 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using CSharpFunctionalExtensions;
+using DirectoryService.Shared;
 
-namespace DirectoryService.Domain;
+namespace DirectoryService.Domain.Locations.ValueObjects;
 
 public record LocationAddress
 {
@@ -12,15 +13,23 @@ public record LocationAddress
 
     public string Value { get; }
 
-    public static Result<LocationAddress> Create(string address)
+    public static Result<LocationAddress, Errors> Create(string address)
     {
+        var errors = new List<Error>();
+
         if (string.IsNullOrWhiteSpace(address))
-            return Result.Failure<LocationAddress>("Адрес не может быть пустым");
+            errors.Add(GeneralErrors.ValueIsRequired("адрес"));
 
         var regex = new Regex(@"^[\w\s.,\-/']+$");
         if (!regex.IsMatch(address))
-            return Result.Failure<LocationAddress>($"Использованы недопустимые символы в адресе - {address}");
+        {
+            errors.Add(
+                GeneralErrors.ValueIsInvalid($"Использованы недопустимые символы в адресе - {address}, значение"));
+        }
 
-        return Result.Success(new LocationAddress(address));
+        if (errors.Any())
+            return new Errors(errors);
+
+        return new LocationAddress(address);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DirectoryService.Shared;
 
 namespace DirectoryService.Domain.Positions;
 
@@ -51,11 +52,12 @@ public class Position
         this.UpdatedAt = DateTime.UtcNow;
     }
 
-    public static Result<Position> Create(CorrectPositionName name, string description)
+    public static Result<Position, Errors> Create(CorrectPositionName name, string description)
     {
         if (description.Length > MAX_DESCRIPTION_LENGTH)
         {
-            return Result.Failure<Position>("Размер описания должен быть не больше либо равен 1000 знакам");
+            return Error.Validation("value.is.invalid", "Размер описания должен быть не больше либо равен 1000 знакам")
+                .ToErrors();
         }
 
         return new Position(name, description);

@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DirectoryService.Shared;
 
 namespace DirectoryService.Domain.Locations.ValueObjects;
 
@@ -19,18 +20,19 @@ public record CorrectLocationName
         set => _value = value;
     }
 
-    public static Result<CorrectLocationName> Create(string value)
+    public static Result<CorrectLocationName, Errors> Create(string value)
     {
+        var errors = new List<Error>();
+
         if (string.IsNullOrWhiteSpace(value))
-        {
-            return Result.Failure<CorrectLocationName>("Некорректное имя локации");
-        }
+            errors.Add(GeneralErrors.ValueIsInvalid("имя локации"));
 
         if (value.Length < MIN_LENGTH || value.Length > MAX_LENGTH)
-        {
-            return Result.Failure<CorrectLocationName>("Некорректная длина имени локации");
-        }
+            errors.Add(GeneralErrors.ValueIsInvalid("длина имени локации"));
 
-        return Result.Success(new CorrectLocationName(value));
+        if (errors.Any())
+            return new Errors(errors);
+
+        return new CorrectLocationName(value);
     }
 }

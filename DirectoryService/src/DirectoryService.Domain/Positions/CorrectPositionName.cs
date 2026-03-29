@@ -1,4 +1,6 @@
-﻿namespace DirectoryService.Domain.Positions;
+﻿using DirectoryService.Shared;
+
+namespace DirectoryService.Domain.Positions;
 
 using CSharpFunctionalExtensions;
 
@@ -19,18 +21,19 @@ public record CorrectPositionName
         set => _value = value;
     }
 
-    public static Result<CorrectPositionName> Create(string value)
+    public static Result<CorrectPositionName, Errors> Create(string value)
     {
+        var errors = new List<Error>();
+
         if (string.IsNullOrWhiteSpace(value))
-        {
-            return Result.Failure<CorrectPositionName>("Некорректное имя позиции");
-        }
+            errors.Add(GeneralErrors.ValueIsInvalid("имя позиции"));
 
         if (value.Length < MIN_LENGTH || value.Length > MAX_LENGTH)
-        {
-            return Result.Failure<CorrectPositionName>("Некорректная длина имени позиции");
-        }
+            errors.Add(GeneralErrors.ValueIsInvalid("длина имени позиции"));
 
-        return Result.Success(new CorrectPositionName(value));
+        if (errors.Any())
+            return new Errors(errors);
+
+        return new CorrectPositionName(value);
     }
 }
