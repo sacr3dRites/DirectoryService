@@ -1,19 +1,20 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Application.Abstractions;
-using DirectoryService.Domain;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Locations.ValueObjects;
-using DirectoryService.Shared;
-using DirectoryService.Shared.EndpointResults;
+using DirectoryService.Shared.CustomErrors;
+using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Application.Locations.CreateLocation;
 
 public class CreateLocationHandler : ICommandHandler<Result<Guid, Errors>, CreateLocationCommand>
 {
     private readonly ILocationsRepository _repository;
+    private readonly ILogger<CreateLocationHandler> _logger;
 
-    public CreateLocationHandler(ILocationsRepository repository)
+    public CreateLocationHandler(ILogger<CreateLocationHandler> logger, ILocationsRepository repository)
     {
+        _logger = logger;
         _repository = repository;
     }
 
@@ -30,13 +31,22 @@ public class CreateLocationHandler : ICommandHandler<Result<Guid, Errors>, Creat
         var timezone = Timezone.Create(request.CreateLocationDto.Timezone);
 
         if (name.IsFailure)
+        {
+            _logger.LogError($"Name is invalid");
             return name.Error;
+        }
 
         if (address.IsFailure)
+        {
+            _logger.LogError($"Address is invalid");
             return address.Error;
+        }
 
         if (timezone.IsFailure)
+        {
+            _logger.LogError($"Timezone is invalid");
             return timezone.Error;
+        }
 
 
         var location = Location.Create(
@@ -50,6 +60,8 @@ public class CreateLocationHandler : ICommandHandler<Result<Guid, Errors>, Creat
         await _repository.AddAsync(location, cancellationToken);
 
         // Логгирование об успешном или неуспешном сохранении
+
+        _logger.LogInformation($"Created location with id {location.Id}");
 
         return location.Id;
     }
