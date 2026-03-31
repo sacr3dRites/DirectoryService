@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace DirectoryService.Shared;
+﻿namespace DirectoryService.Shared.CustomErrors;
 
 public record Error
 {

@@ -1,5 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-using DirectoryService.Shared;
+using DirectoryService.Shared.CustomErrors;
 
 namespace DirectoryService.Domain.Departments.ValueObjects;
 
