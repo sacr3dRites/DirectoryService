@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using CSharpFunctionalExtensions;
+using DirectoryService.Shared.CustomErrors;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;

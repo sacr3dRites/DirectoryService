@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using DirectoryService.Shared.CustomErrors;
 
 namespace DirectoryService.Shared.EndpointResults;
 

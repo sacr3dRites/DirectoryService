@@ -1,4 +1,4 @@
-﻿namespace DirectoryService.Shared;
+﻿namespace DirectoryService.Shared.CustomErrors;
 
 public class GeneralErrors
 {

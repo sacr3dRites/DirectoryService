@@ -1,6 +1,5 @@
-﻿using System.Runtime.InteropServices.JavaScript;
-using CSharpFunctionalExtensions;
-using DirectoryService.Shared;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.Shared.CustomErrors;
 
 namespace DirectoryService.Application.Abstractions;
 

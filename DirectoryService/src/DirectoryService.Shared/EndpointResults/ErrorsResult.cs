@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DirectoryService.Shared.CustomErrors;
+using Microsoft.AspNetCore.Http;
 
 namespace DirectoryService.Shared.EndpointResults;
 

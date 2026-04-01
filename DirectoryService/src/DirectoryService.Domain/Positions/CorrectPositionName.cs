@@ -1,4 +1,4 @@
-﻿using DirectoryService.Shared;
+﻿using DirectoryService.Shared.CustomErrors;
 
 namespace DirectoryService.Domain.Positions;
 

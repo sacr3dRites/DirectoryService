@@ -4,51 +4,55 @@ using DirectoryService.Application.Locations;
 using DirectoryService.Application.Locations.CreateLocation;
 using DirectoryService.Infrastructure;
 using DirectoryService.Infrastructure.Locations;
-using DirectoryService.Shared;
-using DirectoryService.Shared.EndpointResults;
+using DirectoryService.Presentation.Configuration;
+using DirectoryService.Shared.CustomErrors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Models;
+using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
-builder.Services.AddControllers();
-
-builder.Services.Configure<ApiBehaviorOptions>(options =>
+try
 {
-    options.SuppressModelStateInvalidFilter = true;
-});
+    Log.Information("Starting web application");
+    var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
 
-builder.Services.AddDirectoryService(builder.Configuration);
+    builder.Services.AddConfiguration(builder.Configuration);
+    builder.Services.AddControllers();
 
-builder.Services.AddScoped<ICommandHandler<Result<Guid, Errors>, CreateLocationCommand>, CreateLocationHandler>();
-builder.Services.AddScoped<ILocationsRepository, LocationsRepository>();
-
-builder.Services.AddOpenApi(options =>
-{
-    options.AddSchemaTransformer((schema, context, _) =>
+    builder.Services.Configure<ApiBehaviorOptions>(options =>
     {
-        if (context.JsonTypeInfo.Type == typeof(Envelope<Errors>))
-        {
-            if (schema.Properties.TryGetValue("errors", out var errorsProp))
-            {
-                errorsProp.Items.Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = "Error", };
-            }
-        }
-
-        return Task.CompletedTask;
+        options.SuppressModelStateInvalidFilter = true;
     });
-});
 
-var app = builder.Build();
+    builder.Services.AddDirectoryService(builder.Configuration);
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "DirectoryService"));
+    builder.Services.AddScoped<ICommandHandler<Result<Guid, Errors>, CreateLocationCommand>, CreateLocationHandler>();
+    builder.Services.AddScoped<ILocationsRepository, LocationsRepository>();
+
+
+    var app = builder.Build();
+
+    app.AddExceptionMiddleware();
+    app.UseSerilogRequestLogging();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapOpenApi();
+        app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "DirectoryService"));
+    }
+
+    app.MapControllers();
+
+    app.Run();
 }
-
-app.MapControllers();
-
-app.Run();
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

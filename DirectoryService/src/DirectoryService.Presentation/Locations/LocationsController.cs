@@ -2,7 +2,7 @@ using CSharpFunctionalExtensions;
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Locations.CreateLocation;
 using DirectoryService.Contracts.Locations;
-using DirectoryService.Shared;
+using DirectoryService.Shared.CustomErrors;
 using DirectoryService.Shared.EndpointResults;
 using Microsoft.AspNetCore.Mvc;
 
