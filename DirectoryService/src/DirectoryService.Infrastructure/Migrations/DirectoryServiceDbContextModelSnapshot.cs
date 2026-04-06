@@ -108,6 +108,11 @@ namespace DirectoryService.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("location_address");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
                     b.Property<string>("Timezone")
                         .IsRequired()
                         .HasColumnType("text")
@@ -119,18 +124,16 @@ namespace DirectoryService.Infrastructure.Migrations
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("timezone('utc',now())");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Name", "DirectoryService.Domain.Locations.Location.Name#CorrectLocationName", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasColumnType("text")
-                                .HasColumnName("name");
-                        });
-
                     b.HasKey("Id")
                         .HasName("pk_location");
+
+                    b.HasIndex("LocationAddress")
+                        .IsUnique()
+                        .HasDatabaseName("idx_location_address");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("idx_location");
 
                     b.ToTable("locations", (string)null);
                 });

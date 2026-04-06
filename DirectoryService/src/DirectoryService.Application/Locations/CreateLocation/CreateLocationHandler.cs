@@ -1,8 +1,11 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System.Text.Json;
+using CSharpFunctionalExtensions;
 using DirectoryService.Application.Abstractions;
+using DirectoryService.Application.Validation;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Locations.ValueObjects;
 using DirectoryService.Shared.CustomErrors;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Application.Locations.CreateLocation;
@@ -11,43 +14,33 @@ public class CreateLocationHandler : ICommandHandler<Result<Guid, Errors>, Creat
 {
     private readonly ILocationsRepository _repository;
     private readonly ILogger<CreateLocationHandler> _logger;
+    private readonly IValidator<CreateLocationCommand> _validator;
 
-    public CreateLocationHandler(ILogger<CreateLocationHandler> logger, ILocationsRepository repository)
+    public CreateLocationHandler(ILogger<CreateLocationHandler> logger,
+        ILocationsRepository repository,
+        IValidator<CreateLocationCommand> validator)
     {
         _logger = logger;
+        _validator = validator;
         _repository = repository;
     }
 
-    public async Task<Result<Guid, Errors>> Handle(CreateLocationCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid, Errors>> Handle(CreateLocationCommand command, CancellationToken cancellationToken)
     {
-        // проверка валидности
+        var validationResult = await _validator.ValidateAsync(command, cancellationToken);
 
-        // создание Location
-
-        var name = CorrectLocationName.Create(request.CreateLocationDto.Name);
-
-        var address = LocationAddress.Create(request.CreateLocationDto.Address);
-
-        var timezone = Timezone.Create(request.CreateLocationDto.Timezone);
-
-        if (name.IsFailure)
+        if (!validationResult.IsValid)
         {
-            _logger.LogError($"Name is invalid");
-            return name.Error;
+            var errors = validationResult.ToErrors();
+            _logger.LogError(errors.First().Message);
+            return errors;
         }
 
-        if (address.IsFailure)
-        {
-            _logger.LogError($"Address is invalid");
-            return address.Error;
-        }
+        var name = CorrectLocationName.Create(command.CreateLocationDto.Name);
 
-        if (timezone.IsFailure)
-        {
-            _logger.LogError($"Timezone is invalid");
-            return timezone.Error;
-        }
+        var address = LocationAddress.Create(command.CreateLocationDto.Address);
 
+        var timezone = Timezone.Create(command.CreateLocationDto.Timezone);
 
         var location = Location.Create(
             name.Value,
@@ -55,11 +48,7 @@ public class CreateLocationHandler : ICommandHandler<Result<Guid, Errors>, Creat
             timezone.Value
         );
 
-        // сохранение Location в БД
-
         await _repository.AddAsync(location, cancellationToken);
-
-        // Логгирование об успешном или неуспешном сохранении
 
         _logger.LogInformation($"Created location with id {location.Id}");
 
