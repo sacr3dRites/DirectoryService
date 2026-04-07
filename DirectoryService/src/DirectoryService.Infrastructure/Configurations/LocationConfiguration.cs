@@ -22,13 +22,6 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
             .HasConversion(l => l.Name, timezone => Timezone.Create(timezone).Value)
             .HasColumnName("timezone");
 
-        builder.ComplexProperty(l => l.Name, nb =>
-        {
-            nb.Property(l => l.Value)
-                .IsRequired()
-                .HasColumnName("name");
-        });
-
         builder.Property(l => l.IsActive)
             .IsRequired()
             .HasColumnName("is_active");
@@ -46,5 +39,18 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
         builder.HasMany(l => l.Departments)
             .WithOne(d => d.Location)
             .HasForeignKey(d => d.LocationId);
+
+        builder.Property(l => l.Name)
+            .HasConversion(n => n.Value, v => CorrectLocationName.Create(v).Value)
+            .IsRequired()
+            .HasColumnName("name");
+
+        builder.HasIndex(l => l.Name)
+            .IsUnique()
+            .HasDatabaseName("idx_location");
+
+        builder.HasIndex(l => l.LocationAddress)
+            .IsUnique()
+            .HasDatabaseName("idx_location_address");
     }
 }

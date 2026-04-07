@@ -1,58 +1,34 @@
-using CSharpFunctionalExtensions;
-using DirectoryService.Application.Abstractions;
+using DirectoryService.Application;
 using DirectoryService.Application.Locations;
-using DirectoryService.Application.Locations.CreateLocation;
 using DirectoryService.Infrastructure;
 using DirectoryService.Infrastructure.Locations;
-using DirectoryService.Presentation.Configuration;
-using DirectoryService.Shared.CustomErrors;
 using Microsoft.AspNetCore.Mvc;
-using Serilog;
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateBootstrapLogger();
+var builder = WebApplication.CreateBuilder(args);
 
-try
+builder.Services.AddControllers();
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
-    Log.Information("Starting web application");
-    var builder = WebApplication.CreateBuilder(args);
+    options.SuppressModelStateInvalidFilter = true;
+});
+
+builder.Services.AddOpenApi();
+builder.Services.AddApplication(builder.Configuration);
+
+builder.Services.AddDirectoryService(builder.Configuration);
+
+builder.Services.AddScoped<ILocationsRepository, LocationsRepository>();
 
 
-    builder.Services.AddConfiguration(builder.Configuration);
-    builder.Services.AddControllers();
+var app = builder.Build();
 
-    builder.Services.Configure<ApiBehaviorOptions>(options =>
-    {
-        options.SuppressModelStateInvalidFilter = true;
-    });
-
-    builder.Services.AddDirectoryService(builder.Configuration);
-
-    builder.Services.AddScoped<ICommandHandler<Result<Guid, Errors>, CreateLocationCommand>, CreateLocationHandler>();
-    builder.Services.AddScoped<ILocationsRepository, LocationsRepository>();
-
-
-    var app = builder.Build();
-
-    app.AddExceptionMiddleware();
-    app.UseSerilogRequestLogging();
-
-    if (app.Environment.IsDevelopment())
-    {
-        app.MapOpenApi();
-        app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "DirectoryService"));
-    }
-
-    app.MapControllers();
-
-    app.Run();
-}
-catch (Exception ex)
+if (app.Environment.IsDevelopment())
 {
-    Log.Fatal(ex, "Application terminated unexpectedly");
+    app.MapOpenApi();
+    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "DirectoryService"));
 }
-finally
-{
-    Log.CloseAndFlush();
-}
+
+app.MapControllers();
+
+app.Run();
