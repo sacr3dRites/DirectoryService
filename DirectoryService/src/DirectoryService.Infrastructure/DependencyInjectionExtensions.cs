@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DirectoryService.Application.Departments;
+using DirectoryService.Application.Locations;
+using DirectoryService.Infrastructure.Departments;
+using DirectoryService.Infrastructure.Locations;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,6 +31,14 @@ public static class DependencyInjectionExtensions
 
             options.UseLoggerFactory(loggerFactory);
         });
+
+        return services;
+    }
+
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<ILocationsRepository, LocationsRepository>();
+        services.AddScoped<IDepartmentsRepository, DepartmentsRepository>();
 
         return services;
     }

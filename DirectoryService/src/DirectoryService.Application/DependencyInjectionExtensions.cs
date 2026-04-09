@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Application.Abstractions;
+using DirectoryService.Application.Departments.CreateDepartment;
 using DirectoryService.Application.Locations.CreateLocation;
 using DirectoryService.Shared.CustomErrors;
 using FluentValidation;
@@ -13,6 +14,7 @@ public static class DependencyInjectionExtensions
     public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<ICommandHandler<Result<Guid, Errors>, CreateLocationCommand>, CreateLocationHandler>();
+        services.AddScoped<ICommandHandler<Result<Guid, Errors>, CreateDepartmentCommand>, CreateDepartmentHandler>();
         services.AddValidatorsFromAssembly(typeof(DependencyInjectionExtensions).Assembly);
 
         return services;

@@ -1,6 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Domain.Departments.ValueObjects;
+using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Shared;
+using DirectoryService.Shared.CustomErrors;
 
 namespace DirectoryService.Domain.Departments;
 
@@ -55,14 +57,34 @@ public class Department
 
     public IReadOnlyList<DepartmentPosition> Positions => _positions;
 
-    public static Department Create(
+    public static Result<Department, Errors> Create(
         DepartmentIdentifier identifier,
         CorrectDepartmentName name,
-        Department? parent)
+        Department? parent,
+        List<Location> locations)
     {
+        var errors = new Errors();
         var path = DepartmentPath.Create(identifier, parent);
+        var depLocations = new List<DepartmentLocation>();
 
-        return new Department(name, identifier, path, parent);
+        var department = new Department(name, identifier, path, parent);
+
+        foreach (var location in locations)
+        {
+            var depLocation = DepartmentLocation.Create(location, department);
+            if (depLocation.IsFailure)
+                errors.Concat(depLocation.Error);
+            depLocations.Add(depLocation.Value);
+        }
+
+        var operation = department.AddDepartmentLocations(depLocations);
+        if (operation.IsFailure)
+            errors.Concat(Error.Failure("departmentLocations.cannot.be.added", operation.Error).ToErrors());
+
+        if (errors.Any())
+            return errors;
+
+        return department;
     }
 
     public Result AddDepartmentPositions(IEnumerable<DepartmentPosition> positions)
