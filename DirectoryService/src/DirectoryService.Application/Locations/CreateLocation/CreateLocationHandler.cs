@@ -48,7 +48,14 @@ public class CreateLocationHandler : ICommandHandler<Result<Guid, Errors>, Creat
             timezone.Value
         );
 
-        await _repository.AddAsync(location, cancellationToken);
+        try
+        {
+            await _repository.AddAsync(location, cancellationToken);
+        }
+        catch (Exception e)
+        {
+            return GeneralErrors.DatabaseOperationFailure().ToErrors();
+        }
 
         _logger.LogInformation($"Created location with id {location.Id}");
 

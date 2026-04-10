@@ -21,9 +21,11 @@ public class CreateDepartmentCommandValidator : AbstractValidator<CreateDepartme
     public CreateDepartmentCommandValidator()
     {
         RuleFor(x => x.CreateDepartmentDto.Name)
+            .NotEmpty()
             .MustBeValueObject(CorrectDepartmentName.Create);
 
         RuleFor(x => x.CreateDepartmentDto.Identifier)
+            .NotEmpty()
             .MustBeValueObject(DepartmentIdentifier.Create);
 
         RuleFor(x => x.CreateDepartmentDto.ParentId)
@@ -43,11 +45,14 @@ public class CreateDepartmentCommandValidator : AbstractValidator<CreateDepartme
                 if (locationIds == null || !locationIds.Any())
                     return false;
 
+                if (locationIds.Count() != locationIds.Distinct().Count())
+                    return false;
+
                 var existingLocations = await _locationRepo.GetExistingAsync(locationIds, cancellationToken);
 
                 var existingIds = existingLocations
                     .Select(x => x.Id)
-                    .ToList();
+                    .ToHashSet();
                 return locationIds.All(x => existingIds.Contains(x));
             })
             .WithMessage("One or several locations were not found");

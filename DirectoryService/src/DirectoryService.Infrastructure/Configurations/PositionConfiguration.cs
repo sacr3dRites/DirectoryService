@@ -13,12 +13,18 @@ public class PositionConfiguration : IEntityTypeConfiguration<Position>
 
         builder.Property(p => p.Id).HasColumnName("id");
 
-        builder.ComplexProperty(p => p.Name, nb =>
-        {
-            nb.Property(p => p.Value)
-                .IsRequired()
-                .HasColumnName("name");
-        });
+        builder.Property(p => p.Name)
+            .HasConversion(n => n.Value, v => CorrectPositionName.Create(v).Value)
+            .IsRequired()
+            .HasColumnName("name");
+
+        builder.HasIndex(p => p.Name)
+            .IsUnique()
+            .HasFilter("is_active = true");
+
+        builder.HasMany(p => p.Departments)
+            .WithOne(d => d.Position)
+            .HasForeignKey(d => d.PositionId);
 
         builder.Property(p => p.Description)
             .HasColumnName("description");

@@ -79,7 +79,14 @@ public class CreateDepartmentHandler : ICommandHandler<Result<Guid, Errors>, Cre
 
             var department = departmentResult.Value;
 
-            await _departmentRepository.AddAsync(department, cancellationToken);
+            try
+            {
+                await _departmentRepository.AddAsync(department, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                return GeneralErrors.DatabaseOperationFailure().ToErrors();
+            }
 
             _logger.LogInformation($"Created department with id {department.Id} with no parent");
 

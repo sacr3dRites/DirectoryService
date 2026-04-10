@@ -1,10 +1,12 @@
 ﻿using CSharpFunctionalExtensions;
+using DirectoryService.Domain.Shared;
 using DirectoryService.Shared.CustomErrors;
 
 namespace DirectoryService.Domain.Positions;
 
 public class Position
 {
+    private List<DepartmentPosition> _departments = [];
     private const int MAX_DESCRIPTION_LENGTH = 1000;
 
     private Position()
@@ -20,6 +22,8 @@ public class Position
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = CreatedAt;
     }
+
+    public IReadOnlyList<DepartmentPosition> Departments => _departments;
 
     public Guid Id { get; private set; }
 

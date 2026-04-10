@@ -1,5 +1,6 @@
 ﻿using DirectoryService.Application.Departments;
 using DirectoryService.Domain.Departments;
+using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Infrastructure.Departments;
 
@@ -21,5 +22,12 @@ public class DepartmentsRepository : IDepartmentsRepository
     public async Task<Department?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Departments.FindAsync(id, cancellationToken);
+    }
+
+    public async Task<List<Department>> GetExistingAsync(Guid[] ids, CancellationToken cancellationToken = default)
+    {
+        return await _context.Departments
+            .Where(x => ids.Contains(x.Id))
+            .ToListAsync(cancellationToken);
     }
 }
