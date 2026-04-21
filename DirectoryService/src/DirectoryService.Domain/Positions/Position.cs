@@ -13,7 +13,7 @@ public class Position
     {
     }
 
-    private Position(CorrectPositionName name, string description, Guid[] departmentIds)
+    private Position(CorrectPositionName name, string description)
     {
         Id = Guid.NewGuid();
         Name = name;
@@ -21,10 +21,7 @@ public class Position
         IsActive = true;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = CreatedAt;
-        DepartmentIds =  departmentIds;
     }
-
-    public Guid[] DepartmentIds { get; set; }
 
     public IReadOnlyList<DepartmentPosition> Departments => _departments;
 
@@ -53,16 +50,35 @@ public class Position
         return Result.Success();
     }
 
+    public UnitResult<Error> AddDepartmentPositions(IEnumerable<DepartmentPosition> departments)
+    {
+        if (!IsActive)
+            return GeneralErrors.ValueIsInvalid("Нельзя добавлять в неактивное подразделение, значение");
+
+        var departmentPositions = departments.ToList();
+        var duplicates = departmentPositions
+            .Where(d => _departments.Any(x => x.DepartmentPositionId == d.DepartmentPositionId))
+            .ToList();
+
+        if (duplicates.Any())
+            return GeneralErrors.AlreadyExists();
+
+        _departments.AddRange(departmentPositions);
+        UpdatedAt = DateTime.UtcNow;
+
+        return UnitResult.Success<Error>();
+    }
+
     public void ChangeActiveStatus(bool isActive)
     {
         IsActive = isActive;
         this.UpdatedAt = DateTime.UtcNow;
     }
 
+
     public static Result<Position, Errors> Create(
         CorrectPositionName name,
-        string description,
-        Guid[] departmentIds)
+        string description)
     {
         if (description.Length > MAX_DESCRIPTION_LENGTH)
         {
@@ -70,6 +86,6 @@ public class Position
                 .ToErrors();
         }
 
-        return new Position(name, description, departmentIds);
+        return new Position(name, description);
     }
 }

@@ -4,6 +4,7 @@ using DirectoryService.Application.Database;
 using DirectoryService.Application.Departments;
 using DirectoryService.Application.Validation;
 using DirectoryService.Domain.Positions;
+using DirectoryService.Domain.Shared;
 using DirectoryService.Shared.CustomErrors;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
@@ -86,7 +87,7 @@ public class CreatePositionHandler : ICommandHandler<Result<Guid, Errors>, Creat
         var name = CorrectPositionName.Create(command.CreatePositionRequest.Name).Value;
         var description = command.CreatePositionRequest.Description;
 
-        var positionResult = Position.Create(name, description, departmentIds);
+        var positionResult = Position.Create(name, description);
 
         if (positionResult.IsFailure)
         {
@@ -96,6 +97,26 @@ public class CreatePositionHandler : ICommandHandler<Result<Guid, Errors>, Creat
         }
 
         var position = positionResult.Value;
+
+        var departmentPositions = existingDepartments
+            .Select(dep => DepartmentPosition.Create(position, dep))
+            .ToList();
+
+        if (departmentPositions.Any(dep => dep.IsFailure))
+        {
+            return Error.Validation("department.positions.creation.error",
+                "Ошибка во время создания одной из позиций департамента").ToErrors();
+        }
+
+        var addDepartmentPositions =
+            position.AddDepartmentPositions(departmentPositions.Select(result => result.Value));
+
+        if (addDepartmentPositions.IsFailure)
+        {
+            _logger.LogError(addDepartmentPositions.Error.Message);
+            transactionScope.Rollback();
+            return addDepartmentPositions.Error.ToErrors();
+        }
 
         await _positionsRepository.AddAsync(position, cancellationToken);
 
