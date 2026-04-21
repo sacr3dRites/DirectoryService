@@ -3,4 +3,4 @@ using DirectoryService.Contracts.Positions;
 
 namespace DirectoryService.Application.Positions.CreatePosition;
 
-public record CreatePositionCommand(CreatePositionDto CreatePositionDto) : ICommand;
+public record CreatePositionCommand(CreatePositionRequest CreatePositionRequest) : ICommand;

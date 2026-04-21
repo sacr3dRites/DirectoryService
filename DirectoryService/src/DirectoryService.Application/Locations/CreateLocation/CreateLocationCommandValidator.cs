@@ -8,15 +8,15 @@ public class CreateLocationCommandValidator : AbstractValidator<CreateLocationCo
 {
     public CreateLocationCommandValidator()
     {
-        RuleFor(x => x.CreateLocationDto.Name)
+        RuleFor(x => x.CreateLocationRequest.Name)
             .NotEmpty()
             .MustBeValueObject(CorrectLocationName.Create);
 
-        RuleFor(x => x.CreateLocationDto.Address)
+        RuleFor(x => x.CreateLocationRequest.Address)
             .NotEmpty()
             .MustBeValueObject(LocationAddress.Create);
 
-        RuleFor(x => x.CreateLocationDto.Timezone)
+        RuleFor(x => x.CreateLocationRequest.Timezone)
             .NotEmpty()
             .MustBeValueObject(Timezone.Create);
     }

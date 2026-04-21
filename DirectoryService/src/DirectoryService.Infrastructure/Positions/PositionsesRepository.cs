@@ -1,5 +1,7 @@
-﻿using DirectoryService.Application.Positions;
+﻿using System.Linq.Expressions;
+using DirectoryService.Application.Positions;
 using DirectoryService.Domain.Positions;
+using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Infrastructure.Positions;
 
@@ -15,13 +17,13 @@ public class PositionsesRepository : IPositionsRepository
     public async Task AddAsync(Position position, CancellationToken cancellationToken = default)
     {
         await _context.Positions.AddAsync(position, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public Task<Position?> GetByName(string name)
+    public async Task<List<Position>> GetByAsync(Expression<Func<Position, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        var position = _context.Positions.FirstOrDefault(x => x.Name.Equals(name));
-
-        return Task.FromResult(position);
+        return await _context.Positions
+            .Where(predicate)
+            .ToListAsync(cancellationToken);
     }
 }

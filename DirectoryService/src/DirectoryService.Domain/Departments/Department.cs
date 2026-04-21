@@ -60,30 +60,10 @@ public class Department
     public static Result<Department, Errors> Create(
         DepartmentIdentifier identifier,
         CorrectDepartmentName name,
-        Department? parent,
-        List<Location> locations)
+        Department? parent)
     {
-        var errors = new Errors();
         var path = DepartmentPath.Create(identifier, parent);
-        var depLocations = new List<DepartmentLocation>();
-
         var department = new Department(name, identifier, path, parent);
-
-        foreach (var location in locations)
-        {
-            var depLocation = DepartmentLocation.Create(location, department);
-            if (depLocation.IsFailure)
-                errors.Concat(depLocation.Error);
-            depLocations.Add(depLocation.Value);
-        }
-
-        var operation = department.AddDepartmentLocations(depLocations);
-        if (operation.IsFailure)
-            errors.Concat(Error.Failure("departmentLocations.cannot.be.added", operation.Error).ToErrors());
-
-        if (errors.Any())
-            return errors;
-
         return department;
     }
 
@@ -105,10 +85,10 @@ public class Department
         return Result.Success();
     }
 
-    public Result AddDepartmentLocations(IEnumerable<DepartmentLocation> locations)
+    public UnitResult<Error> AddDepartmentLocations(IEnumerable<DepartmentLocation> locations)
     {
         if (!IsActive)
-            return Result.Failure("Нельзя добавлять в неактивное подразделение");
+            return GeneralErrors.ValueIsInvalid("Нельзя добавлять в неактивное подразделение, значение");
 
         var departmentLocations = locations.ToList();
         var duplicates = departmentLocations
@@ -116,12 +96,12 @@ public class Department
             .ToList();
 
         if (duplicates.Any())
-            return Result.Failure("Некоторые локации уже добавлены");
+            return GeneralErrors.AlreadyExists();
 
         _locations.AddRange(departmentLocations);
         UpdatedAt = DateTime.UtcNow;
 
-        return Result.Success();
+        return UnitResult.Success<Error>();
     }
 
     public Result AddChildren(IEnumerable<Department> departments)

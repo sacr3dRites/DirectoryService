@@ -29,9 +29,4 @@ public class GeneralErrors
     {
         return Error.Failure("server.failure", "Серверная ошибка");
     }
-
-    public static Error DatabaseOperationFailure()
-    {
-        return Error.Failure("database.operation.failure", "Ошибка во время операции БД");
-    }
 }

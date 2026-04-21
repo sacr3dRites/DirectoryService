@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Application.Abstractions;
+using DirectoryService.Application.Database;
 using DirectoryService.Application.Departments.CreateDepartment;
 using DirectoryService.Application.Locations.CreateLocation;
 using DirectoryService.Application.Positions.CreatePosition;

@@ -1,4 +1,5 @@
-﻿using DirectoryService.Application.Locations;
+﻿using System.Linq.Expressions;
+using DirectoryService.Application.Locations;
 using DirectoryService.Domain.Locations;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,19 +17,14 @@ public class LocationsRepository : ILocationsRepository
     public async Task AddAsync(Location location, CancellationToken cancellationToken = default)
     {
         await _dbContext.Locations.AddAsync(location, cancellationToken);
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<Location?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        return await _dbContext.Locations.FindAsync(id, cancellationToken);
-    }
-
-    public async Task<List<Location>> GetExistingAsync(Guid[] ids, CancellationToken cancellationToken = default)
+    public async Task<List<Location>> GetByAsync(
+        Expression<Func<Location, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
         return await _dbContext.Locations
-            .Where(x => ids.Contains(x.Id))
+            .Where(predicate)
             .ToListAsync(cancellationToken);
     }
 }

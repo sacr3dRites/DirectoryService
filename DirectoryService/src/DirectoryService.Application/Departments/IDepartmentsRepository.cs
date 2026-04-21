@@ -1,11 +1,14 @@
-﻿using DirectoryService.Domain.Departments;
+﻿using System.Linq.Expressions;
+using CSharpFunctionalExtensions;
+using DirectoryService.Domain.Departments;
+using DirectoryService.Shared.CustomErrors;
 
 namespace DirectoryService.Application.Departments;
 
 public interface IDepartmentsRepository
 {
     public Task AddAsync(Department department, CancellationToken cancellationToken = default);
-    
-    public Task<Department?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    public Task<List<Department>> GetExistingAsync(Guid[] ids, CancellationToken cancellationToken = default);
+
+    Task<List<Department>> GetByAsync(Expression<Func<Department, bool>> predicate,
+        CancellationToken cancellationToken = default);
 }

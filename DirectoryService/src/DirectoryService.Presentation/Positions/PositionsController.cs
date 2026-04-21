@@ -14,7 +14,7 @@ public class PositionsController : ControllerBase
 {
     [HttpPost]
     public async Task<EndpointResult<Guid>> Create(
-        [FromBody] CreatePositionDto request,
+        [FromBody] CreatePositionRequest request,
         [FromServices] ICommandHandler<Result<Guid, Errors>, CreatePositionCommand> commandHandler,
         CancellationToken cancellationToken)
     {

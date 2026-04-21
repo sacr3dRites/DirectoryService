@@ -7,48 +7,23 @@ namespace DirectoryService.Application.Positions.CreatePosition;
 
 public class CreatePositionCommandValidator : AbstractValidator<CreatePositionCommand>
 {
-    private readonly IDepartmentsRepository _departmentsRepository;
-    private readonly IPositionsRepository _positionsRepository;
 
     public CreatePositionCommandValidator(IDepartmentsRepository departmentsRepository,
         IPositionsRepository positionsRepository)
     {
-        _departmentsRepository = departmentsRepository;
-        _positionsRepository = positionsRepository;
-
-        RuleFor(x => x.CreatePositionDto.Name)
+        RuleFor(x => x.CreatePositionRequest.Name)
             .NotEmpty()
-            .MustBeValueObject(CorrectPositionName.Create)
-            .Must(name =>
-            {
-                return _positionsRepository.GetByName(name).Result is null;
-            })
-            .WithMessage("Active position with this name already exists or name is incorrect");
+            .MustBeValueObject(CorrectPositionName.Create);
         ;
 
-        RuleFor(x => x.CreatePositionDto.Description)
+        RuleFor(x => x.CreatePositionRequest.Description)
             .NotEmpty()
             .MaximumLength(1000)
             .WithMessage("Description cannot be empty or longer than 1000 characters");
 
 
-        RuleFor(X => X.CreatePositionDto.DepartmentIds)
-            .MustAsync(async (departmentIds, cancellationToken) =>
-            {
-                if (departmentIds == null || !departmentIds.Any())
-                    return false;
-
-                if (departmentIds.Count() != departmentIds.Distinct().Count())
-                    return false;
-
-                var existingDepartments = await _departmentsRepository.GetExistingAsync(departmentIds);
-
-                var existingIds = existingDepartments
-                    .Where(x => x.IsActive)
-                    .Select(x => x.Id)
-                    .ToHashSet();
-                return departmentIds.All(x => existingIds.Contains(x));
-            })
+        RuleFor(X => X.CreatePositionRequest.DepartmentIds)
+            .NotNull()
             .WithMessage("The list of departments contains non-existent, inactive or duplicate elements");
     }
 }

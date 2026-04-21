@@ -13,7 +13,7 @@ public class Position
     {
     }
 
-    private Position(CorrectPositionName name, string description)
+    private Position(CorrectPositionName name, string description, Guid[] departmentIds)
     {
         Id = Guid.NewGuid();
         Name = name;
@@ -21,7 +21,10 @@ public class Position
         IsActive = true;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = CreatedAt;
+        DepartmentIds =  departmentIds;
     }
+
+    public Guid[] DepartmentIds { get; set; }
 
     public IReadOnlyList<DepartmentPosition> Departments => _departments;
 
@@ -56,7 +59,10 @@ public class Position
         this.UpdatedAt = DateTime.UtcNow;
     }
 
-    public static Result<Position, Errors> Create(CorrectPositionName name, string description)
+    public static Result<Position, Errors> Create(
+        CorrectPositionName name,
+        string description,
+        Guid[] departmentIds)
     {
         if (description.Length > MAX_DESCRIPTION_LENGTH)
         {
@@ -64,6 +70,6 @@ public class Position
                 .ToErrors();
         }
 
-        return new Position(name, description);
+        return new Position(name, description, departmentIds);
     }
 }
