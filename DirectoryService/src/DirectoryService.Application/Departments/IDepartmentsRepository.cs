@@ -9,6 +9,6 @@ public interface IDepartmentsRepository
 {
     public Task AddAsync(Department department, CancellationToken cancellationToken = default);
 
-    Task<List<Department>> GetByAsync(Expression<Func<Department, bool>> predicate,
+    Task<IReadOnlyList<Department>> GetByAsync(Expression<Func<Department, bool>> predicate,
         CancellationToken cancellationToken = default);
 }

@@ -46,7 +46,6 @@ public class CreateLocationHandler : ICommandHandler<Result<Guid, Errors>, Creat
         {
             var errors = validationResult.ToErrors();
             _logger.LogError(errors.First().Message);
-            transactionScope.Rollback();
             return errors;
         }
 

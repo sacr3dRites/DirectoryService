@@ -50,7 +50,6 @@ public class CreateDepartmentHandler : ICommandHandler<Result<Guid, Errors>, Cre
         if (!validationResult.IsValid)
         {
             _logger.LogError(validationResult.Errors.First().ErrorMessage);
-            transactionScope.Rollback();
             return validationResult.ToErrors();
         }
 
@@ -59,9 +58,7 @@ public class CreateDepartmentHandler : ICommandHandler<Result<Guid, Errors>, Cre
         if (locationIds.Count() !=
             locationIds.Distinct().Count())
         {
-            transactionScope.Rollback();
-            return Error.Validation("values.are.not.distinct", "В списке Location Ids есть повторяющиеся Id")
-                .ToErrors();
+            locationIds = locationIds.Distinct().ToArray();
         }
 
         var existingLocations =
@@ -77,7 +74,6 @@ public class CreateDepartmentHandler : ICommandHandler<Result<Guid, Errors>, Cre
         if (!contains)
         {
             _logger.LogError("Какие-то id локации были не найдены среди существующих Location");
-            transactionScope.Rollback();
             return Error.NotFound("location.ids.not.found", "Some of the location ids not found among existing ids")
                 .ToErrors();
         }
@@ -99,7 +95,6 @@ public class CreateDepartmentHandler : ICommandHandler<Result<Guid, Errors>, Cre
                 await _departmentRepository.GetByAsync(department => department.Id == parentId, cancellationToken);
             if (!parentResult.Any())
             {
-                transactionScope.Rollback();
                 return GeneralErrors.NotFound(name: "Родительский департамент").ToErrors();
             }
 
@@ -111,7 +106,6 @@ public class CreateDepartmentHandler : ICommandHandler<Result<Guid, Errors>, Cre
         if (departmentResult.IsFailure)
         {
             _logger.LogError(departmentResult.Error.FirstOrDefault().Message);
-            transactionScope.Rollback();
             return departmentResult.Error;
         }
 
@@ -133,7 +127,6 @@ public class CreateDepartmentHandler : ICommandHandler<Result<Guid, Errors>, Cre
         if (addDepartmentLocations.IsFailure)
         {
             _logger.LogError(addDepartmentLocations.Error.Message);
-            transactionScope.Rollback();
             return addDepartmentLocations.Error.ToErrors();
         }
 

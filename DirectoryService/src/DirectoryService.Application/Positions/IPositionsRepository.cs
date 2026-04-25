@@ -7,6 +7,6 @@ public interface IPositionsRepository
 {
     public Task AddAsync(Position position, CancellationToken cancellationToken = default);
 
-    Task<List<Position>> GetByAsync(Expression<Func<Position, bool>> predicate,
+    Task<IReadOnlyList<Position>> GetByAsync(Expression<Func<Position, bool>> predicate,
         CancellationToken cancellationToken = default);
 }

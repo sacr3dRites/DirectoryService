@@ -7,9 +7,7 @@ namespace DirectoryService.Application.Positions.CreatePosition;
 
 public class CreatePositionCommandValidator : AbstractValidator<CreatePositionCommand>
 {
-
-    public CreatePositionCommandValidator(IDepartmentsRepository departmentsRepository,
-        IPositionsRepository positionsRepository)
+    public CreatePositionCommandValidator()
     {
         RuleFor(x => x.CreatePositionRequest.Name)
             .NotEmpty()

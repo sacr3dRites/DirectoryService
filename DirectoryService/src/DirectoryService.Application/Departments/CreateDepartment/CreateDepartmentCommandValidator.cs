@@ -7,9 +7,6 @@ namespace DirectoryService.Application.Departments.CreateDepartment;
 
 public class CreateDepartmentCommandValidator : AbstractValidator<CreateDepartmentCommand>
 {
-    private readonly IDepartmentsRepository _departmentRepo;
-    private readonly ILocationsRepository _locationRepo;
-
     public CreateDepartmentCommandValidator()
     {
         RuleFor(x => x.CreateDepartmentRequest.Name)

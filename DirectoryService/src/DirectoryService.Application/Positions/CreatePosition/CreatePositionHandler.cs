@@ -50,7 +50,6 @@ public class CreatePositionHandler : ICommandHandler<Result<Guid, Errors>, Creat
         {
             var errors = validationResult.ToErrors();
             _logger.LogError(errors.First().Message);
-            transactionScope.Rollback();
             return errors;
         }
 
@@ -58,7 +57,6 @@ public class CreatePositionHandler : ICommandHandler<Result<Guid, Errors>, Creat
         if (positions.Any())
         {
             _logger.LogError("Position with name {Name} already exists.", command.CreatePositionRequest.Name);
-            transactionScope.Rollback();
             return GeneralErrors.AlreadyExists().ToErrors();
         }
 
@@ -67,7 +65,6 @@ public class CreatePositionHandler : ICommandHandler<Result<Guid, Errors>, Creat
         if (departmentIds.Count() !=
             departmentIds.Distinct().Count())
         {
-            transactionScope.Rollback();
             return Error.Validation("values.are.not.distinct", "В списке Department Ids есть повторяющиеся Id")
                 .ToErrors();
         }
@@ -80,7 +77,6 @@ public class CreatePositionHandler : ICommandHandler<Result<Guid, Errors>, Creat
         if (!existingDepartments.All(x => departmentIds.Contains(x.Id)))
         {
             _logger.LogError("Some departments Ids belong to non existent departments.");
-            transactionScope.Rollback();
             return GeneralErrors.NotFound(name: "Id некоторых департаментов").ToErrors();
         }
 
@@ -92,7 +88,6 @@ public class CreatePositionHandler : ICommandHandler<Result<Guid, Errors>, Creat
         if (positionResult.IsFailure)
         {
             _logger.LogError(positionResult.Error.FirstOrDefault().Message);
-            transactionScope.Rollback();
             return positionResult.Error;
         }
 
@@ -114,7 +109,6 @@ public class CreatePositionHandler : ICommandHandler<Result<Guid, Errors>, Creat
         if (addDepartmentPositions.IsFailure)
         {
             _logger.LogError(addDepartmentPositions.Error.Message);
-            transactionScope.Rollback();
             return addDepartmentPositions.Error.ToErrors();
         }
 
@@ -126,7 +120,6 @@ public class CreatePositionHandler : ICommandHandler<Result<Guid, Errors>, Creat
         if (commitedResult.IsFailure)
         {
             _logger.LogError(commitedResult.Error.Message);
-            transactionScope.Rollback();
             return commitedResult.Error.ToErrors();
         }
 
