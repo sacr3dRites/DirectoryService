@@ -19,7 +19,7 @@ public class LocationsRepository : ILocationsRepository
         await _dbContext.Locations.AddAsync(location, cancellationToken);
     }
 
-    public async Task<List<Location>> GetByAsync(
+    public async Task<IReadOnlyList<Location>> GetByAsync(
         Expression<Func<Location, bool>> predicate,
         CancellationToken cancellationToken = default)
     {

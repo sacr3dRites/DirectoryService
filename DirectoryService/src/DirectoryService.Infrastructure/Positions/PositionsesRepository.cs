@@ -19,7 +19,7 @@ public class PositionsesRepository : IPositionsRepository
         await _context.Positions.AddAsync(position, cancellationToken);
     }
 
-    public async Task<List<Position>> GetByAsync(Expression<Func<Position, bool>> predicate,
+    public async Task<IReadOnlyList<Position>> GetByAsync(Expression<Func<Position, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
         return await _context.Positions
