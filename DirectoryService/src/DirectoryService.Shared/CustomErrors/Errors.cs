@@ -6,6 +6,11 @@ public class Errors : IEnumerable<Error>
 {
     private readonly List<Error> _errors;
 
+    public Errors()
+    {
+        _errors = new List<Error>();
+    }
+
     public Errors(IEnumerable<Error> errors)
     {
         _errors = [..errors];

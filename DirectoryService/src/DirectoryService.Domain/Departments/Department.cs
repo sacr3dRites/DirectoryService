@@ -1,6 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Domain.Departments.ValueObjects;
+using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Shared;
+using DirectoryService.Shared.CustomErrors;
 
 namespace DirectoryService.Domain.Departments;
 
@@ -55,14 +57,14 @@ public class Department
 
     public IReadOnlyList<DepartmentPosition> Positions => _positions;
 
-    public static Department Create(
+    public static Result<Department, Errors> Create(
         DepartmentIdentifier identifier,
         CorrectDepartmentName name,
         Department? parent)
     {
         var path = DepartmentPath.Create(identifier, parent);
-
-        return new Department(name, identifier, path, parent);
+        var department = new Department(name, identifier, path, parent);
+        return department;
     }
 
     public Result AddDepartmentPositions(IEnumerable<DepartmentPosition> positions)
@@ -83,10 +85,10 @@ public class Department
         return Result.Success();
     }
 
-    public Result AddDepartmentLocations(IEnumerable<DepartmentLocation> locations)
+    public UnitResult<Error> AddDepartmentLocations(IEnumerable<DepartmentLocation> locations)
     {
         if (!IsActive)
-            return Result.Failure("Нельзя добавлять в неактивное подразделение");
+            return GeneralErrors.ValueIsInvalid("Нельзя добавлять в неактивное подразделение, значение");
 
         var departmentLocations = locations.ToList();
         var duplicates = departmentLocations
@@ -94,12 +96,12 @@ public class Department
             .ToList();
 
         if (duplicates.Any())
-            return Result.Failure("Некоторые локации уже добавлены");
+            return GeneralErrors.AlreadyExists();
 
         _locations.AddRange(departmentLocations);
         UpdatedAt = DateTime.UtcNow;
 
-        return Result.Success();
+        return UnitResult.Success<Error>();
     }
 
     public Result AddChildren(IEnumerable<Department> departments)

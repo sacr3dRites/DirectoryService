@@ -21,6 +21,10 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             .HasColumnName("identifier")
             .IsRequired();
 
+        builder.HasIndex(d => d.Identifier)
+            .IsUnique()
+            .HasDatabaseName("idx_department_identifier");
+
         builder.ComplexProperty(d => d.Path, nb =>
         {
             nb.Property(d => d.Value)

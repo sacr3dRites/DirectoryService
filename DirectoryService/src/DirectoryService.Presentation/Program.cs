@@ -15,10 +15,8 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 
 builder.Services.AddOpenApi();
 builder.Services.AddApplication(builder.Configuration);
-
 builder.Services.AddDirectoryService(builder.Configuration);
-
-builder.Services.AddScoped<ILocationsRepository, LocationsRepository>();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 
 var app = builder.Build();

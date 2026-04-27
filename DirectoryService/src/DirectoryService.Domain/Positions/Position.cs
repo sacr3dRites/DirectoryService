@@ -1,10 +1,12 @@
 ﻿using CSharpFunctionalExtensions;
+using DirectoryService.Domain.Shared;
 using DirectoryService.Shared.CustomErrors;
 
 namespace DirectoryService.Domain.Positions;
 
 public class Position
 {
+    private List<DepartmentPosition> _departments = [];
     private const int MAX_DESCRIPTION_LENGTH = 1000;
 
     private Position()
@@ -20,6 +22,8 @@ public class Position
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = CreatedAt;
     }
+
+    public IReadOnlyList<DepartmentPosition> Departments => _departments;
 
     public Guid Id { get; private set; }
 
@@ -46,13 +50,35 @@ public class Position
         return Result.Success();
     }
 
+    public UnitResult<Error> AddDepartmentPositions(IEnumerable<DepartmentPosition> departments)
+    {
+        if (!IsActive)
+            return GeneralErrors.ValueIsInvalid("Нельзя добавлять в неактивное подразделение, значение");
+
+        var departmentPositions = departments.ToList();
+        var duplicates = departmentPositions
+            .Where(d => _departments.Any(x => x.DepartmentPositionId == d.DepartmentPositionId))
+            .ToList();
+
+        if (duplicates.Any())
+            return GeneralErrors.AlreadyExists();
+
+        _departments.AddRange(departmentPositions);
+        UpdatedAt = DateTime.UtcNow;
+
+        return UnitResult.Success<Error>();
+    }
+
     public void ChangeActiveStatus(bool isActive)
     {
         IsActive = isActive;
         this.UpdatedAt = DateTime.UtcNow;
     }
 
-    public static Result<Position, Errors> Create(CorrectPositionName name, string description)
+
+    public static Result<Position, Errors> Create(
+        CorrectPositionName name,
+        string description)
     {
         if (description.Length > MAX_DESCRIPTION_LENGTH)
         {

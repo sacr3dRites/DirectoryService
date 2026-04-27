@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DirectoryService.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DirectoryService.Infrastructure.Migrations
 {
     [DbContext(typeof(DirectoryServiceDbContext))]
-    partial class DirectoryServiceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260407152141_UpdatedDepartmentConfig")]
+    partial class UpdatedDepartmentConfig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -163,23 +166,24 @@ namespace DirectoryService.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("timezone('utc',now())");
 
+                    b.ComplexProperty<Dictionary<string, object>>("Name", "DirectoryService.Domain.Positions.Position.Name#CorrectPositionName", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("name");
+                        });
+
                     b.HasKey("Id")
                         .HasName("pk_position");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasFilter("is_active = true");
 
                     b.ToTable("positions", (string)null);
                 });
@@ -272,7 +276,7 @@ namespace DirectoryService.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("DirectoryService.Domain.Positions.Position", "Position")
-                        .WithMany("Departments")
+                        .WithMany()
                         .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -292,11 +296,6 @@ namespace DirectoryService.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("DirectoryService.Domain.Locations.Location", b =>
-                {
-                    b.Navigation("Departments");
-                });
-
-            modelBuilder.Entity("DirectoryService.Domain.Positions.Position", b =>
                 {
                     b.Navigation("Departments");
                 });
