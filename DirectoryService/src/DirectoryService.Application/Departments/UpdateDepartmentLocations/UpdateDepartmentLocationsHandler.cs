@@ -52,12 +52,16 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Result<Guid, Err
             return validatorResult.ToErrors();
         }
 
+        var departmentResult =
+            await _departmentRepository.GetByAsync(dep => dep.Id.Equals(command.DepartmentId), cancellationToken);
 
-        // Проверить — существует ли подразделение с таким departmentId и оно активно
+        if (departmentResult.IsFailure)
+        {
+            _logger.LogError(departmentResult.Error.Message);
+            return departmentResult.Error.ToErrors();
+        }
 
-        var department =
-            (await _departmentRepository.GetByAsync(dep => dep.Id.Equals(command.DepartmentId), cancellationToken))
-            .FirstOrDefault();
+        var department = departmentResult.Value.FirstOrDefault();
 
         if (department == null)
         {
@@ -65,7 +69,6 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Result<Guid, Err
             return GeneralErrors.NotFound(id: command.DepartmentId, "department id").ToErrors();
         }
 
-        // Проверить — все locationIds существуют и активны, нет дубликатов
         var locationIds = command.UpdateDepartmentLocationsRequest.LocationIds;
 
         if (locationIds.Count() !=
@@ -74,12 +77,18 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Result<Guid, Err
             locationIds = locationIds.Distinct().ToArray();
         }
 
-        var locations =
+        var locationsResut =
             await _locationRepository.GetByAsync(
                 location => locationIds.Contains(location.Id) && location.IsActive,
                 cancellationToken);
 
-        var existingLocations = locations.Distinct();
+        if (locationsResut.IsFailure)
+        {
+            _logger.LogError(locationsResut.Error.Message);
+            return locationsResut.Error.ToErrors();
+        }
+
+        var existingLocations = locationsResut.Value.Distinct();
 
         if (!existingLocations.Any())
         {
@@ -97,7 +106,6 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Result<Guid, Err
                 "Ошибка во время создания одной из локаций департамента").ToErrors();
         }
 
-        // Обновить — заменить старые привязки к локациям новым списком
         await _departmentRepository.DeleteLocationsByDepartmentId(department.Id, cancellationToken);
 
         await _departmentRepository.AddDepartmentLocations(departmentLocations.Select(result => result.Value));
