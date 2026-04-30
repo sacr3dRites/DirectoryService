@@ -61,12 +61,19 @@ public class CreateDepartmentHandler : ICommandHandler<Result<Guid, Errors>, Cre
             locationIds = locationIds.Distinct().ToArray();
         }
 
-        var existingLocations =
+        var existingLocationsResult =
             await _locationRepository.GetByAsync(
                 x => locationIds.Contains(x.Id),
                 cancellationToken);
 
-        var existingIds = existingLocations
+        if (existingLocationsResult.IsFailure)
+        {
+            _logger.LogError(existingLocationsResult.Error.Message);
+            return existingLocationsResult.Error.ToErrors();
+        }
+
+
+        var existingIds = existingLocationsResult.Value
             .Select(x => x.Id)
             .ToHashSet();
         var contains = locationIds.All(x => existingIds.Contains(x));
@@ -82,10 +89,18 @@ public class CreateDepartmentHandler : ICommandHandler<Result<Guid, Errors>, Cre
 
         var name = CorrectDepartmentName.Create(command.CreateDepartmentRequest.Name).Value;
 
-        var locations =
+        var locationsResult =
             await _locationRepository.GetByAsync(
                 x => locationIds.Contains(x.Id),
                 cancellationToken);
+
+        if (locationsResult.IsFailure)
+        {
+            _logger.LogError(locationsResult.Error.Message);
+            return locationsResult.Error.ToErrors();
+        }
+
+        var locations = locationsResult.Value;
 
         Department? parent = null;
 
@@ -93,12 +108,19 @@ public class CreateDepartmentHandler : ICommandHandler<Result<Guid, Errors>, Cre
         {
             var parentResult =
                 await _departmentRepository.GetByAsync(department => department.Id == parentId, cancellationToken);
-            if (!parentResult.Any())
+
+            if (parentResult.IsFailure)
+            {
+                _logger.LogError(parentResult.Error.Message);
+                return parentResult.Error.ToErrors();
+            }
+
+            if (!parentResult.Value.Any())
             {
                 return GeneralErrors.NotFound(name: "Родительский департамент").ToErrors();
             }
 
-            parent = parentResult.First();
+            parent = parentResult.Value.First();
         }
 
         var departmentResult = Department.Create(identifier, name, parent);
