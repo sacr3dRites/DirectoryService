@@ -53,8 +53,16 @@ public class CreatePositionHandler : ICommandHandler<Result<Guid, Errors>, Creat
             return errors;
         }
 
-        var positions = await _positionsRepository.GetByAsync(x => x.Name.Equals(command.CreatePositionRequest.Name));
-        if (positions.Any())
+        var positionsResult =
+            await _positionsRepository.GetByAsync(x => x.Name.Equals(command.CreatePositionRequest.Name));
+
+        if (positionsResult.IsFailure)
+        {
+            _logger.LogError(positionsResult.Error.Message);
+            return positionsResult.Error.ToErrors();
+        }
+
+        if (positionsResult.Value.Any())
         {
             _logger.LogError("Position with name {Name} already exists.", command.CreatePositionRequest.Name);
             return GeneralErrors.AlreadyExists().ToErrors();
@@ -69,12 +77,18 @@ public class CreatePositionHandler : ICommandHandler<Result<Guid, Errors>, Creat
                 .ToErrors();
         }
 
-        var existingDepartments =
+        var existingDepartmentsResult =
             await _departmentsRepository.GetByAsync(
                 x => departmentIds.Contains(x.Id),
                 cancellationToken);
 
-        if (!existingDepartments.All(x => departmentIds.Contains(x.Id)))
+        if (existingDepartmentsResult.IsFailure)
+        {
+            _logger.LogError(existingDepartmentsResult.Error.Message);
+            return existingDepartmentsResult.Error.ToErrors();
+        }
+
+        if (!existingDepartmentsResult.Value.All(x => departmentIds.Contains(x.Id)))
         {
             _logger.LogError("Some departments Ids belong to non existent departments.");
             return GeneralErrors.NotFound(name: "Id некоторых департаментов").ToErrors();
@@ -93,7 +107,7 @@ public class CreatePositionHandler : ICommandHandler<Result<Guid, Errors>, Creat
 
         var position = positionResult.Value;
 
-        var departmentPositions = existingDepartments
+        var departmentPositions = existingDepartmentsResult.Value
             .Select(dep => DepartmentPosition.Create(position, dep))
             .ToList();
 

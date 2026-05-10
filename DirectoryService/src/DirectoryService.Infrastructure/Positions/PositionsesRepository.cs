@@ -1,6 +1,8 @@
 ﻿using System.Linq.Expressions;
+using CSharpFunctionalExtensions;
 using DirectoryService.Application.Positions;
 using DirectoryService.Domain.Positions;
+using DirectoryService.Shared.CustomErrors;
 using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Infrastructure.Positions;
@@ -14,16 +16,40 @@ public class PositionsesRepository : IPositionsRepository
         _context = context;
     }
 
-    public async Task AddAsync(Position position, CancellationToken cancellationToken = default)
+    public async Task<UnitResult<Error>> AddAsync(Position position, CancellationToken cancellationToken = default)
     {
-        await _context.Positions.AddAsync(position, cancellationToken);
+        try
+        {
+            await _context.Positions.AddAsync(position, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            return Error.Failure("position.add.failed", "Failed to add position");
+        }
+
+        return UnitResult.Success<Error>();
     }
 
-    public async Task<IReadOnlyList<Position>> GetByAsync(Expression<Func<Position, bool>> predicate,
+    public async Task<Result<IReadOnlyList<Position>, Error>> GetByAsync(Expression<Func<Position, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        return await _context.Positions
-            .Where(predicate)
-            .ToListAsync(cancellationToken);
+        try
+        {
+            return await _context.Positions
+                .Where(predicate)
+                .ToListAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            return Error.Failure("position.get.failed", "Failed to get positions");
+        }
     }
 }

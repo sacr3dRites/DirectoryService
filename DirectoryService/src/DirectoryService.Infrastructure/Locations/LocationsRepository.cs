@@ -1,6 +1,8 @@
 ﻿using System.Linq.Expressions;
+using CSharpFunctionalExtensions;
 using DirectoryService.Application.Locations;
 using DirectoryService.Domain.Locations;
+using DirectoryService.Shared.CustomErrors;
 using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Infrastructure.Locations;
@@ -14,17 +16,41 @@ public class LocationsRepository : ILocationsRepository
         _dbContext = dbContext;
     }
 
-    public async Task AddAsync(Location location, CancellationToken cancellationToken = default)
+    public async Task<UnitResult<Error>> AddAsync(Location location, CancellationToken cancellationToken = default)
     {
-        await _dbContext.Locations.AddAsync(location, cancellationToken);
+        try
+        {
+            await _dbContext.Locations.AddAsync(location, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            return Error.Failure("location.add.failed", "Failed to add location");
+        }
+
+        return UnitResult.Success<Error>();
     }
 
-    public async Task<IReadOnlyList<Location>> GetByAsync(
+    public async Task<Result<IReadOnlyList<Location>, Error>> GetByAsync(
         Expression<Func<Location, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Locations
-            .Where(predicate)
-            .ToListAsync(cancellationToken);
+        try
+        {
+            return await _dbContext.Locations
+                .Where(predicate)
+                .ToListAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            return Error.Failure("location.get.failed", "Failed to get locations");
+        }
     }
 }
