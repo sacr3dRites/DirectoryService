@@ -44,7 +44,7 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Result<Guid, Err
             return transactionScopeResult.Error.ToErrors();
         }
 
-        var transactionScope = transactionScopeResult.Value;
+        using var transactionScope = transactionScopeResult.Value;
 
         var validatorResult = await _validator.ValidateAsync(command, cancellationToken);
         if (!validatorResult.IsValid)

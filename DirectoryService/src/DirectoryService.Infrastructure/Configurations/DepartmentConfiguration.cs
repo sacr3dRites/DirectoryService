@@ -62,6 +62,8 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
         builder.Property(d => d.Depth)
             .IsRequired()
             .HasColumnName("depth");
+        
+            ///Добавить children departments
 
         builder.HasMany(d => d.Locations)
             .WithOne(l => l.Department)

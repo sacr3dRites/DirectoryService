@@ -129,7 +129,12 @@ public class Department
         return Result.Success();
     }
 
-    private bool IsAncestorOf(Department department)
+    /// <summary>
+    /// Возвращает true если this департамент найден среди родителей этого депа, false если нет
+    /// </summary>
+    /// <param name="department"> департамент для которого проверяем является ли он чайлдом </param>
+    /// <returns> является департамент чайлдом this департамента или нет </returns>
+    public bool IsAncestorOf(Department department)
     {
         var current = department.Parent;
 

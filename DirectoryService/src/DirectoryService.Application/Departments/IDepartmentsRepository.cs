@@ -13,8 +13,12 @@ public interface IDepartmentsRepository
     Task<Result<IReadOnlyList<Department>, Error>> GetByAsync(Expression<Func<Department, bool>> predicate,
         CancellationToken cancellationToken = default);
 
-    Task<UnitResult<Error>> DeleteLocationsByDepartmentId(Guid departmentId, CancellationToken cancellationToken = default);
+    Task<UnitResult<Error>> DeleteLocationsByDepartmentId(Guid departmentId,
+        CancellationToken cancellationToken = default);
 
     Task<UnitResult<Error>> AddDepartmentLocations(IEnumerable<DepartmentLocation> departmentLocations,
+        CancellationToken cancellationToken = default);
+
+    Task<Result<Guid, Error>> TransferDepartment(Guid parent, Guid department,
         CancellationToken cancellationToken = default);
 }
