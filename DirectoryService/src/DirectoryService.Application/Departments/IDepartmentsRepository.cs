@@ -22,4 +22,7 @@ public interface IDepartmentsRepository
 
     Task<UnitResult<Error>> AddDepartmentLocations(IEnumerable<DepartmentLocation> departmentLocations,
         CancellationToken cancellationToken = default);
+
+    Task<Result<Guid, Error>> TransferDepartment(Guid parent, Guid department,
+        CancellationToken cancellationToken = default);
 }

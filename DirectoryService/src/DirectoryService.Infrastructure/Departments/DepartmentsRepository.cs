@@ -132,4 +132,9 @@ public class DepartmentsRepository : IDepartmentsRepository
 
         return UnitResult.Success<Error>();
     }
+
+    public async Task<Result<Guid, Error>> TransferDepartment(Guid parent, Guid department,
+        CancellationToken cancellationToken = default)
+    {
+    }
 }
