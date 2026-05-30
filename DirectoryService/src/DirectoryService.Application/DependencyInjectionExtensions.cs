@@ -2,6 +2,7 @@
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Database;
 using DirectoryService.Application.Departments.CreateDepartment;
+using DirectoryService.Application.Departments.TransferDepartment;
 using DirectoryService.Application.Departments.DeleteDepartment;
 using DirectoryService.Application.Departments.GetAllDepartments;
 using DirectoryService.Application.Departments.GetDepartment;
@@ -29,6 +30,8 @@ public static class DependencyInjectionExtensions
     {
         services.AddScoped<ICommandHandler<Result<Guid, Errors>, CreateLocationCommand>, CreateLocationHandler>();
         services.AddScoped<ICommandHandler<Result<Guid, Errors>, CreateDepartmentCommand>, CreateDepartmentHandler>();
+        services
+            .AddScoped<ICommandHandler<Result<Guid, Errors>, TransferDepartmentCommand>, TransferDepartmentHandler>();
         services.AddScoped<ICommandHandler<Result<Guid, Errors>, DeletePositionCommand>, DeletePositionHandler>();
         services.AddScoped<ICommandHandler<Result<Guid, Errors>, DeleteLocationCommand>, DeleteLocationHandler>();
         services.AddScoped<ICommandHandler<Result<Guid, Errors>, DeleteDepartmentCommand>, DeleteDepartmentHandler>();

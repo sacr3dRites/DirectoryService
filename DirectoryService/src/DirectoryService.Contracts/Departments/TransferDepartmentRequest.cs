@@ -1,3 +1,3 @@
 ﻿namespace DirectoryService.Contracts.Departments;
 
-public record TransferDepartmentRequest(Guid ParentId);
+public record TransferDepartmentRequest(Guid? ParentId);

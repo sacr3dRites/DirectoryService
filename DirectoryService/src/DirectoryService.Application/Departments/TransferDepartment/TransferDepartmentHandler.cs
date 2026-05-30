@@ -42,6 +42,7 @@ public class TransferDepartmentHandler : ICommandHandler<Result<Guid, Errors>, T
 
         using var transactionScope = transactionResult.Value;
 
+        //валидация
         var validationResult = await _validator.ValidateAsync(command, cancellationToken);
 
         if (!validationResult.IsValid)
@@ -50,13 +51,9 @@ public class TransferDepartmentHandler : ICommandHandler<Result<Guid, Errors>, T
             return validationResult.ToErrors();
         }
 
-        //валидация
-
         //Проверить, что существует ли подразделение с таким departmentId и оно активно
 
-        var departmentResult = await _departmentsRepository.GetByAsync(
-            department => department.Id.Equals(command.DepartmentId),
-            cancellationToken);
+        var departmentResult = await _departmentsRepository.GetByIdWithLock(command.DepartmentId, cancellationToken);
 
         if (departmentResult.IsFailure)
         {
@@ -64,12 +61,21 @@ public class TransferDepartmentHandler : ICommandHandler<Result<Guid, Errors>, T
             return departmentResult.Error.ToErrors();
         }
 
-        var department = departmentResult.Value.FirstOrDefault();
+        var department = departmentResult.Value;
 
         if (!department.IsActive)
         {
             _logger.LogError("department is not active");
             return GeneralErrors.ValueIsInvalid().ToErrors();
+        }
+
+        //блокировка наследников
+        var descendantsResult = await _departmentsRepository.LockDescendants(department.Path, cancellationToken);
+
+        if (descendantsResult.IsFailure)
+        {
+            _logger.LogError(descendantsResult.Error.Message);
+            return descendantsResult.Error.ToErrors();
         }
 
         //Проверить, что новый parentId (если не null) существует, активен и не совпадает с departmentId
@@ -78,6 +84,12 @@ public class TransferDepartmentHandler : ICommandHandler<Result<Guid, Errors>, T
 
         if (command.TransferDepartmentRequest.ParentId != null)
         {
+            if (department.Parent.Id == command.TransferDepartmentRequest.ParentId)
+            {
+                _logger.LogError("New parent id is the same as old parent id");
+                return GeneralErrors.ValueIsInvalid().ToErrors();
+            }
+
             var parentDepartmentResult = await _departmentsRepository.GetByAsync(
                 parentDepartment => parentDepartment.Id.Equals(command.TransferDepartmentRequest.ParentId),
                 cancellationToken);
@@ -107,16 +119,17 @@ public class TransferDepartmentHandler : ICommandHandler<Result<Guid, Errors>, T
             }
         }
 
-        //пессимистическая блокировка
-        //запрос в репозитории
-        await _departmentsRepository.TransferDepartment(parentDepartment.Id, department.Id, cancellationToken);
+        var oldParentDepartmentPath = department.Path;
 
         //Изменить parentId у подразделения, пересчитать и обновить Path, Depth
+        await _departmentsRepository.TransferDepartment(parentDepartment, department, cancellationToken);
 
         //Для всех дочерних подразделений и их потомков обновить Path и Depth, использовать Ltree
-
+        await _departmentsRepository.UpdateChildDepartments(department.Id, oldParentDepartmentPath);
         //сохранение
+        transactionScope.Commit();
 
-        //логи
+        _logger.LogInformation("Department has been transferred");
+        return department.Id;
     }
 }
