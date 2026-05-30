@@ -25,14 +25,15 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             .IsUnique()
             .HasDatabaseName("idx_department_identifier");
 
-        builder.ComplexProperty(d => d.Path, nb =>
+        builder.OwnsOne(d => d.Path, nb =>
         {
             nb.Property(d => d.Value)
                 .IsRequired()
+                .HasColumnType("ltree")
                 .HasColumnName("path");
         });
 
-        builder.ComplexProperty(d => d.Name, nb =>
+        builder.OwnsOne(d => d.Name, nb =>
         {
             nb.Property(d => d.Value)
                 .IsRequired()

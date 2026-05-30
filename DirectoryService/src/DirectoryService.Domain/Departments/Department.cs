@@ -24,7 +24,7 @@ public class Department
     {
         Id = Guid.NewGuid();
         Name = name;
-        Depth = 0;
+        Depth = (short)(parent?.Depth + 1 ?? 0);
         IsActive = true;
         Parent = parent;
         Identifier = identifier;
