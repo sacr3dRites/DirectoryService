@@ -3,6 +3,7 @@ using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Departments.CreateDepartment;
 using DirectoryService.Application.Departments.UpdateDepartmentLocations;
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Domain.Departments;
 using DirectoryService.Shared.CustomErrors;
 using DirectoryService.Shared.EndpointResults;
 using Microsoft.AspNetCore.Mvc;
@@ -33,5 +34,14 @@ public class DepartmentsController : ControllerBase
     {
         var command = new UpdateDepartmentLocationsCommand(id, request);
         return await handler.Handle(command, cancellationToken);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<EndpointResult<DepartmentDto>> Get(
+        [FromRoute] Guid id,
+        [FromServices] IQueryHandler<DepartmentDto> handler,
+        CancellationToken cancellationToken)
+    {
+        return await handler.Handle(id, cancellationToken);
     }
 }

@@ -41,6 +41,7 @@ public static class DependencyInjectionExtensions
 
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddScoped<IReadDbContext, DirectoryServiceDbContext>();
         services.AddScoped<ILocationsRepository, LocationsRepository>();
         services.AddScoped<IDepartmentsRepository, DepartmentsRepository>();
         services.AddScoped<IPositionsRepository, PositionsesRepository>();

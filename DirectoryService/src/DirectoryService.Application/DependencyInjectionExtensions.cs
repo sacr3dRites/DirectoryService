@@ -2,9 +2,13 @@
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Database;
 using DirectoryService.Application.Departments.CreateDepartment;
+using DirectoryService.Application.Departments.GetDepartment;
 using DirectoryService.Application.Departments.UpdateDepartmentLocations;
 using DirectoryService.Application.Locations.CreateLocation;
+using DirectoryService.Application.Locations.GetLocation;
 using DirectoryService.Application.Positions.CreatePosition;
+using DirectoryService.Contracts.Departments;
+using DirectoryService.Contracts.Locations;
 using DirectoryService.Shared.CustomErrors;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +22,8 @@ public static class DependencyInjectionExtensions
     {
         services.AddScoped<ICommandHandler<Result<Guid, Errors>, CreateLocationCommand>, CreateLocationHandler>();
         services.AddScoped<ICommandHandler<Result<Guid, Errors>, CreateDepartmentCommand>, CreateDepartmentHandler>();
+        services.AddScoped<IQueryHandler<DepartmentDto>, DepartmentQueryHandler>();
+        services.AddScoped<IQueryHandler<LocationDto>, LocationQueryHandler>();
         services.AddScoped<ICommandHandler<Result<Guid, Errors>, CreatePositionCommand>, CreatePositionHandler>();
         services
             .AddScoped<ICommandHandler<Result<Guid, Errors>, UpdateDepartmentLocationsCommand>,
