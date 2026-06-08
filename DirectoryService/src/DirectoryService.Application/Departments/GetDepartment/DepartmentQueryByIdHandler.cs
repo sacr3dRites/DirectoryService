@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Application.Departments.GetDepartment;
 
-public class DepartmentQueryHandler : IQueryHandler<DepartmentDto>
+public class DepartmentQueryByIdHandler : IQueryByIdHandler<DepartmentDto>
 {
     private readonly IReadDbContext _context;
 
-    public DepartmentQueryHandler(IReadDbContext readDbContext)
+    public DepartmentQueryByIdHandler(IReadDbContext readDbContext)
     {
         _context = readDbContext;
     }

@@ -39,9 +39,9 @@ public class DepartmentsController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<EndpointResult<DepartmentDto>> Get(
         [FromRoute] Guid id,
-        [FromServices] IQueryHandler<DepartmentDto> handler,
+        [FromServices] IQueryByIdHandler<DepartmentDto> byIdHandler,
         CancellationToken cancellationToken)
     {
-        return await handler.Handle(id, cancellationToken);
+        return await byIdHandler.Handle(id, cancellationToken);
     }
 }

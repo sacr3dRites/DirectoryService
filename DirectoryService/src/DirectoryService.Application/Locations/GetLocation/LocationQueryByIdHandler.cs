@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Application.Locations.GetLocation;
 
-public class LocationQueryHandler : IQueryHandler<LocationDto>
+public class LocationQueryByIdHandler : IQueryByIdHandler<LocationDto>
 {
     private readonly IReadDbContext _context;
 
-    public LocationQueryHandler(IReadDbContext context)
+    public LocationQueryByIdHandler(IReadDbContext context)
     {
         _context = context;
     }
