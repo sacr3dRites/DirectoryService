@@ -34,9 +34,9 @@ public class LocationsController : ControllerBase
 
     [HttpGet("top")]
     public async Task<EndpointResult<LocationsTopDto[]>> GetTopLocations(
-        [FromServices] IQueryHandler<LocationsTopDto[]> byIdHandler,
+        [FromServices] IQueryHandler<LocationsTopDto[]> handler,
         CancellationToken cancellationToken)
     {
-        return await byIdHandler.Handle(cancellationToken);
+        return await handler.Handle(cancellationToken);
     }
 }
