@@ -19,8 +19,6 @@ public class GetTopLocationsDapperHandler : IQueryHandler<LocationsTopDto[]>
 
     public async Task<Result<LocationsTopDto[], Errors>> Handle(CancellationToken cancellationToken)
     {
-        LocationsTopDto? dto = null;
-
         const string query = """
                              SELECT
                              id AS "Id", 
