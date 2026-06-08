@@ -26,6 +26,8 @@ public class DirectoryServiceDbContext : DbContext, IReadDbContext
 
     public IQueryable<Location> LocationsRead => Set<Location>().AsNoTracking();
 
+    public IQueryable<DepartmentLocation> DepartmentLocationsRead => Set<DepartmentLocation>().AsNoTracking();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(DirectoryServiceDbContext).Assembly);

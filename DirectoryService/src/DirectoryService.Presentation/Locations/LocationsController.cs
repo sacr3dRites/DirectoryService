@@ -26,9 +26,17 @@ public class LocationsController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<EndpointResult<LocationDto>> Get(
         [FromRoute] Guid id,
-        [FromServices] IQueryHandler<LocationDto> handler,
+        [FromServices] IQueryByIdHandler<LocationDto> byIdHandler,
         CancellationToken cancellationToken)
     {
-        return await handler.Handle(id, cancellationToken);
+        return await byIdHandler.Handle(id, cancellationToken);
+    }
+
+    [HttpGet("top")]
+    public async Task<EndpointResult<LocationsTopDto[]>> GetTopLocations(
+        [FromServices] IQueryHandler<LocationsTopDto[]> handler,
+        CancellationToken cancellationToken)
+    {
+        return await handler.Handle(cancellationToken);
     }
 }

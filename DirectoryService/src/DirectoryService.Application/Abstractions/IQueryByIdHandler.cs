@@ -3,7 +3,7 @@ using DirectoryService.Shared.CustomErrors;
 
 namespace DirectoryService.Application.Abstractions;
 
-public interface IQueryHandler<T>
+public interface IQueryByIdHandler<T>
 {
-    Task<Result<T, Errors>> Handle(CancellationToken cancellationToken);
+    Task<Result<T, Errors>> Handle(Guid id, CancellationToken cancellationToken);
 }
