@@ -2,11 +2,13 @@
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Database;
 using DirectoryService.Application.Departments.CreateDepartment;
+using DirectoryService.Application.Departments.GetAllDepartments;
 using DirectoryService.Application.Departments.GetDepartment;
 using DirectoryService.Application.Departments.UpdateDepartmentLocations;
 using DirectoryService.Application.Locations.CreateLocation;
 using DirectoryService.Application.Locations.GetLocation;
 using DirectoryService.Application.Locations.GetTopLocations;
+using DirectoryService.Application.PaginationUtils;
 using DirectoryService.Application.Positions.CreatePosition;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Contracts.Locations;
@@ -25,7 +27,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ICommandHandler<Result<Guid, Errors>, CreateDepartmentCommand>, CreateDepartmentHandler>();
         services.AddScoped<IQueryByIdHandler<DepartmentDto>, DepartmentQueryByIdHandler>();
         services.AddScoped<IQueryByIdHandler<LocationDto>, LocationQueryByIdHandler>();
-        services.AddScoped<IQueryHandler<LocationsTopDto[]>, GetTopLocationsHandler>();
+        services.AddScoped<IQueryHandler<LocationsTopDto[]>, GetTopLocationsDapperHandler>();
+        services.AddScoped<IQueryHandler<GetDepartmentsQuery,PagedResult<DepartmentListItemDto>>, GetAllDepartmentsHandler>();
         services.AddScoped<ICommandHandler<Result<Guid, Errors>, CreatePositionCommand>, CreatePositionHandler>();
         services
             .AddScoped<ICommandHandler<Result<Guid, Errors>, UpdateDepartmentLocationsCommand>,
