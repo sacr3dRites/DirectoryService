@@ -73,6 +73,7 @@ public class GetAllDepartmentsHandler : IQueryHandler<GetDepartmentsQuery, Paged
         });
 
         var PageCount = (int)Math.Ceiling(totalCount / (double)query.PageSize);
-        return new PagedResult<DepartmentListItemDto>(departmentListItemsArray, query.Page, query.PageSize, PageCount);
+        return new PagedResult<DepartmentListItemDto>(departmentListItemsArray, query.Page, query.PageSize, PageCount,
+            totalCount);
     }
 }

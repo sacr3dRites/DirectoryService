@@ -2,7 +2,7 @@
 
 namespace DirectoryService.Application.PaginationUtils;
 
-public class PagedResult<T>(T[] items, int pageNumber, int pageSize, int pageCount)
+public class PagedResult<T>(T[] items, int pageNumber, int pageSize, int pageCount, int totalCount)
 {
     public T[] Items { get; init; } = items;
 
@@ -11,4 +11,6 @@ public class PagedResult<T>(T[] items, int pageNumber, int pageSize, int pageCou
     public int PageSize { get; init; } = pageSize;
 
     public int PageCount { get; init; } = pageCount;
+
+    public int TotalCount { get; init; } = totalCount;
 }
