@@ -50,7 +50,7 @@ public class GetAllDepartmentsHandler : IQueryHandler<GetDepartmentsQuery, Paged
                                        OFFSET @Offset
                                        """;
 
-        var dbConn = await _connectionFactory.CreateConnectionAsync();
+        using var dbConn = await _connectionFactory.CreateConnectionAsync();
 
         var parameters = new
         {
@@ -72,6 +72,7 @@ public class GetAllDepartmentsHandler : IQueryHandler<GetDepartmentsQuery, Paged
                 : $"%{query.Search}%",
         });
 
-        return new PagedResult<DepartmentListItemDto>(departmentListItemsArray, query.Page, query.PageSize, totalCount);
+        var PageCount = (int)Math.Ceiling(totalCount / (double)query.PageSize);
+        return new PagedResult<DepartmentListItemDto>(departmentListItemsArray, query.Page, query.PageSize, PageCount);
     }
 }
