@@ -2,6 +2,7 @@
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Departments.CreateDepartment;
 using DirectoryService.Application.Departments.UpdateDepartmentLocations;
+using DirectoryService.Application.PaginationUtils;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Shared.CustomErrors;
@@ -43,5 +44,15 @@ public class DepartmentsController : ControllerBase
         CancellationToken cancellationToken)
     {
         return await byIdHandler.Handle(id, cancellationToken);
+    }
+
+    [HttpGet]
+    public async Task<EndpointResult<PagedResult<DepartmentListItemDto>>> GetAllDepartments(
+        [FromQuery] GetDepartmentsQuery query,
+        [FromServices] IQueryHandler<GetDepartmentsQuery, PagedResult<DepartmentListItemDto>> handler,
+        CancellationToken cancellationToken
+    )
+    {
+        return await handler.Handle(query, cancellationToken);
     }
 }
