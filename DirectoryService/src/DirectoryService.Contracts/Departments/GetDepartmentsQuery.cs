@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using DirectoryService.Contracts.Shared;
 
 namespace DirectoryService.Contracts.Departments;
 

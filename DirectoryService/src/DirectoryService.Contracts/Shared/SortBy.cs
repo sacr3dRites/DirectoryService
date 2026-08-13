@@ -1,4 +1,4 @@
-namespace DirectoryService.Contracts.Departments;
+namespace DirectoryService.Contracts.Shared;
 
 public enum SortBy
 {

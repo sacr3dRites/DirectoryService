@@ -4,8 +4,8 @@ using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Database;
 using DirectoryService.Application.PaginationUtils;
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Contracts.Shared;
 using DirectoryService.Shared.CustomErrors;
-using Microsoft.AspNetCore.Connections;
 
 namespace DirectoryService.Application.Departments.GetAllDepartments;
 

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Contracts.Shared;
 
 namespace DirectoryService.Contracts.Locations;
 

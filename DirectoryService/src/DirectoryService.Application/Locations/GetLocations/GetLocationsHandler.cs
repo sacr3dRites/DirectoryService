@@ -6,6 +6,7 @@ using DirectoryService.Application.Database;
 using DirectoryService.Application.PaginationUtils;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Contracts.Locations;
+using DirectoryService.Contracts.Shared;
 using DirectoryService.Shared.CustomErrors;
 
 namespace DirectoryService.Application.Locations.GetLocations;
@@ -80,7 +81,6 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsQuery, PagedResult<
                                 ROW_NUMBER() OVER (
                                 ORDER BY {sortBy} {sortDirection}, f.id) AS page_order
                                 FROM filtered_locations f
-                                ORDER BY {sortBy} {sortDirection}, f.id
                                 LIMIT @PageSize
                                 OFFSET @Offset
                                 )
@@ -91,16 +91,20 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsQuery, PagedResult<
                                     p.created_at AS "CreatedAt",
                                     p.department_count AS "DepartmentCount",
                                     t.total_count AS "TotalCount"
-                                FROM totalCount AS t
-                                LEFT JOIN paged AS p ON TRUE
+                                FROM paged p, totalCount t
                                 ORDER BY p.page_order NULLS LAST;
                                 """;
         using var dbConn = await _connectionFactory.CreateConnectionAsync();
         var locationArr = (await dbConn.QueryAsync<LocationListItemDto>(sqlLocationQuery, parameters)).ToArray();
 
 
-        var pageCount = (int)Math.Ceiling(locationArr.First().TotalCount / (double)query.PageSize);
-        return new PagedResult<LocationListItemDto>(locationArr, query.Page, query.PageSize, pageCount,
-            locationArr.First().TotalCount);
+        if (locationArr.Length > 0)
+        {
+            var pageCount = (int)Math.Ceiling(locationArr.First().TotalCount / (double)query.PageSize);
+            return new PagedResult<LocationListItemDto>(locationArr, query.Page, query.PageSize, pageCount,
+                locationArr.First().TotalCount);
+        }
+
+        return Error.NotFound("locationsNotFound", "Results not found").ToErrors();
     }
 }
