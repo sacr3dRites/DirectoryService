@@ -60,7 +60,7 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsQuery, PagedResult<
 
         var sqlLocationQuery = $"""
                                 WITH filtered_locations AS (
-                                SELECT l.id, l.name, l.location_address, l.created_at, COUNT(dl.department_location_id)::int AS department_count
+                                SELECT l.id, l.name, l.location_address, l.created_at, l.updated_at, COUNT(dl.department_location_id)::int AS department_count
                                 FROM locations l
                                 LEFT JOIN department_locations AS dl ON dl.location_id = l.id
                                 WHERE @Search is NULL or name ILIKE @Search
@@ -68,7 +68,8 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsQuery, PagedResult<
                                     l.id,
                                     l.name,
                                     l.location_address,
-                                    l.created_at
+                                    l.created_at,
+                                    l.updated_at
                                 HAVING @MinDepartmentCount IS NULL
                                     OR COUNT(dl.department_location_id) >= @MinDepartmentCount
                                 ),
@@ -81,6 +82,7 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsQuery, PagedResult<
                                 ROW_NUMBER() OVER (
                                 ORDER BY {sortBy} {sortDirection}, f.id) AS page_order
                                 FROM filtered_locations f
+                                ORDER BY page_order
                                 LIMIT @PageSize
                                 OFFSET @Offset
                                 )
@@ -105,6 +107,7 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsQuery, PagedResult<
                 locationArr.First().TotalCount);
         }
 
-        return Error.NotFound("locationsNotFound", "Results not found").ToErrors();
+        return new PagedResult<LocationListItemDto>(Array.Empty<LocationListItemDto>(), query.Page, query.PageSize, 0,
+            0);
     }
 }
