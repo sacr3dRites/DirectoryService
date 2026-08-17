@@ -1,6 +1,7 @@
 using CSharpFunctionalExtensions;
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Locations.CreateLocation;
+using DirectoryService.Application.PaginationUtils;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Shared.CustomErrors;
 using DirectoryService.Shared.EndpointResults;
@@ -38,5 +39,15 @@ public class LocationsController : ControllerBase
         CancellationToken cancellationToken)
     {
         return await handler.Handle(cancellationToken);
+    }
+
+    [HttpGet]
+    public async Task<EndpointResult<PagedResult<LocationListItemDto>>> GetLocations(
+        [FromQuery] GetLocationsQuery query,
+        [FromServices] IQueryHandler<GetLocationsQuery, PagedResult<LocationListItemDto>> handler,
+        CancellationToken cancellationToken
+    )
+    {
+        return await handler.Handle(query, cancellationToken);
     }
 }
