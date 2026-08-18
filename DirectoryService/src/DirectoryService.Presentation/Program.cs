@@ -33,7 +33,4 @@ app.MapControllers();
 
 app.Run();
 
-namespace DirectoryService.Presentation
-{
-    public partial class Program;
-}
+public partial class Program;
