@@ -16,3 +16,14 @@ It can be overridden with the `ConnectionStrings__DirectoryServiceDb` environmen
 Existing application data is preserved, so the resulting tables may contain more than 100 rows. Re-running
 the command after a complete seed is safe and does not add duplicates. If a partial or modified seed data set
 is detected, the command stops without changing it.
+
+## Integration tests
+
+With Docker Desktop running, execute only the Directory Service integration suite:
+
+```powershell
+cd DirectoryService
+.\scripts\run-integration-tests.ps1
+```
+
+See [DirectoryService/INTEGRATION_TESTS.md](DirectoryService/INTEGRATION_TESTS.md) for the test architecture and additional commands.

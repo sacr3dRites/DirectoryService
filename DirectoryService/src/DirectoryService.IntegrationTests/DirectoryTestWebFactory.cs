@@ -3,21 +3,19 @@ using DirectoryService.Infrastructure;
 using DirectoryService.Presentation;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
 using Respawn;
+using Respawn.Graph;
 using Testcontainers.PostgreSql;
 
 namespace DirectoryService.IntegrationTests;
 
-public class DirectoryTestWebFactory : WebApplicationFactory<Program>, IAsyncLifetime
+public sealed class DirectoryTestWebFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _dbContainer = new PostgreSqlBuilder()
-        .WithImage("postgres")
-        .WithDatabase("DirectoryServiceDb")
+    private readonly PostgreSqlContainer _dbContainer = new PostgreSqlBuilder("postgres:17-alpine")
+        .WithDatabase("directory_service_tests")
         .WithUsername("postgres")
         .WithPassword("postgres")
         .Build();
@@ -25,58 +23,45 @@ public class DirectoryTestWebFactory : WebApplicationFactory<Program>, IAsyncLif
     private Respawner _respawner = null!;
     private DbConnection _dbConnection = null!;
 
-    public DirectoryTestWebFactory()
-    {
-    }
-
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
-        builder.ConfigureTestServices(services =>
-        {
-            services.RemoveAll<DirectoryServiceDbContext>();
-
-            var options = new DbContextOptionsBuilder<DirectoryServiceDbContext>()
-                .UseNpgsql(_dbContainer.GetConnectionString())
-                .Options;
-
-            services.AddScoped<DirectoryServiceDbContext>(_ =>
-                new DirectoryServiceDbContext(options));
-        });
-    }
-
     public async Task InitializeAsync()
     {
         await _dbContainer.StartAsync();
 
         await using var scope = Services.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<DirectoryServiceDbContext>();
-
-        await dbContext.Database.EnsureDeletedAsync();
-        await dbContext.Database.EnsureCreatedAsync();
+        await dbContext.Database.MigrateAsync();
 
         _dbConnection = new NpgsqlConnection(_dbContainer.GetConnectionString());
         await _dbConnection.OpenAsync();
 
-        await InitializeRespawner();
+        _respawner = await Respawner.CreateAsync(
+            _dbConnection,
+            new RespawnerOptions
+            {
+                DbAdapter = DbAdapter.Postgres,
+                SchemasToInclude = ["public"],
+                TablesToIgnore = [new Table("__EFMigrationsHistory")],
+            });
     }
 
     async Task IAsyncLifetime.DisposeAsync()
     {
+        if (_dbConnection is not null)
+        {
+            await _dbConnection.DisposeAsync();
+        }
+
         await DisposeAsync();
-        await _dbConnection.DisposeAsync();
-        await _dbContainer.StopAsync();
         await _dbContainer.DisposeAsync();
     }
 
-    public async Task ResetDatabaseAsync()
-    {
-        await _respawner.ResetAsync(_dbConnection);
-    }
+    public Task ResetDatabaseAsync() => _respawner.ResetAsync(_dbConnection);
 
-    private async Task InitializeRespawner()
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        _respawner = await Respawner.CreateAsync(
-            _dbConnection,
-            options: new RespawnerOptions { DbAdapter = DbAdapter.Postgres, SchemasToInclude = ["public"] });
+        builder.UseEnvironment("Testing");
+        builder.UseSetting(
+            "ConnectionStrings:DirectoryServiceDb",
+            _dbContainer.GetConnectionString());
     }
 }
