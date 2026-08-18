@@ -23,6 +23,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectoryService.Shared", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectoryService.Seeder", "src\DirectoryService.Seeder\DirectoryService.Seeder.csproj", "{0E03C7B1-4E36-4F50-8AB0-A9B55F10D466}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectoryService.IntegrationTests", "src\DirectoryService.IntegrationTests\DirectoryService.IntegrationTests.csproj", "{70F19DEF-F7D1-44A7-96A6-E4ABDEBFBF2D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{581F1E2D-A5DF-4A14-8EB5-C58B8AE219C7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +40,7 @@ Global
 		{603B2D17-C626-4C9C-9758-2E55549FC0D4} = {00AD1522-F7E6-4FDC-B5F0-9BC1710B03E2}
 		{9870A9BE-BE2F-45CB-9823-906B0A1273C8} = {00AD1522-F7E6-4FDC-B5F0-9BC1710B03E2}
 		{0E03C7B1-4E36-4F50-8AB0-A9B55F10D466} = {00AD1522-F7E6-4FDC-B5F0-9BC1710B03E2}
+		{70F19DEF-F7D1-44A7-96A6-E4ABDEBFBF2D} = {581F1E2D-A5DF-4A14-8EB5-C58B8AE219C7}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{D33D6605-87B2-4974-B630-CC05CE084985}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -66,5 +71,9 @@ Global
 		{0E03C7B1-4E36-4F50-8AB0-A9B55F10D466}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E03C7B1-4E36-4F50-8AB0-A9B55F10D466}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E03C7B1-4E36-4F50-8AB0-A9B55F10D466}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70F19DEF-F7D1-44A7-96A6-E4ABDEBFBF2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70F19DEF-F7D1-44A7-96A6-E4ABDEBFBF2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70F19DEF-F7D1-44A7-96A6-E4ABDEBFBF2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70F19DEF-F7D1-44A7-96A6-E4ABDEBFBF2D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
