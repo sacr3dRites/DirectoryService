@@ -12,4 +12,8 @@ public interface IPositionsRepository
 
     Task<Result<IReadOnlyList<Position>, Error>> GetByAsync(Expression<Func<Position, bool>> predicate,
         CancellationToken cancellationToken = default);
+
+    Task<Result<IReadOnlyList<Position>, Error>> GetByIncludingInactiveAsync(
+        Expression<Func<Position, bool>> predicate,
+        CancellationToken cancellationToken = default);
 }

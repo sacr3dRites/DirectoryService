@@ -119,6 +119,17 @@ public sealed class PositionEndpointTests : DirectoryTestsBase
                 .SingleAsync(item => item.Id == deletedPositionId));
         Assert.False(deletedPosition.IsActive);
 
+        using var repeatedDeleteResponse = await Client.DeleteAsync($"/api/positions/{deletedPositionId}");
+        var repeatedDeleteEnvelope = await AssertSuccessEnvelopeAsync<Guid>(repeatedDeleteResponse);
+        Assert.Equal(deletedPositionId, repeatedDeleteEnvelope.Result);
+
+        var positionAfterRepeatedDelete = await ExecuteInDbAsync(dbContext =>
+            dbContext.Positions
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .SingleAsync(item => item.Id == deletedPositionId));
+        Assert.Equal(deletedPosition.UpdatedAt, positionAfterRepeatedDelete.UpdatedAt);
+
         var visiblePositionIds = await ExecuteInDbAsync(dbContext =>
             dbContext.Positions
                 .AsNoTracking()

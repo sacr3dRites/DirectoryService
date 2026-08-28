@@ -72,6 +72,27 @@ public class DepartmentsRepository : IDepartmentsRepository
         }
     }
 
+    public async Task<Result<IReadOnlyList<Department>, Error>> GetByIncludingInactiveAsync(
+        Expression<Func<Department, bool>> predicate,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await _context.Departments
+                .IgnoreQueryFilters()
+                .Where(predicate)
+                .ToListAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            return Error.Failure("department.get.failed", "Failed to get departments");
+        }
+    }
+
     public async Task<UnitResult<Error>> DeleteLocationsByDepartmentId(Guid departmentId,
         CancellationToken cancellationToken = default)
     {

@@ -14,6 +14,10 @@ public interface IDepartmentsRepository
     Task<Result<IReadOnlyList<Department>, Error>> GetByAsync(Expression<Func<Department, bool>> predicate,
         CancellationToken cancellationToken = default);
 
+    Task<Result<IReadOnlyList<Department>, Error>> GetByIncludingInactiveAsync(
+        Expression<Func<Department, bool>> predicate,
+        CancellationToken cancellationToken = default);
+
     Task<UnitResult<Error>> DeleteLocationsByDepartmentId(Guid departmentId, CancellationToken cancellationToken = default);
 
     Task<UnitResult<Error>> AddDepartmentLocations(IEnumerable<DepartmentLocation> departmentLocations,

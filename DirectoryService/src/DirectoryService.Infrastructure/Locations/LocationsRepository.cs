@@ -71,4 +71,25 @@ public class LocationsRepository : ILocationsRepository
             return Error.Failure("location.get.failed", "Failed to get locations");
         }
     }
+
+    public async Task<Result<IReadOnlyList<Location>, Error>> GetByIncludingInactiveAsync(
+        Expression<Func<Location, bool>> predicate,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await _dbContext.Locations
+                .IgnoreQueryFilters()
+                .Where(predicate)
+                .ToListAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            return Error.Failure("location.get.failed", "Failed to get locations");
+        }
+    }
 }

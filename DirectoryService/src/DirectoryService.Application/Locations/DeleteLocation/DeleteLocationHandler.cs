@@ -2,7 +2,6 @@
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Database;
 using DirectoryService.Shared.CustomErrors;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Application.Locations.DeleteLocation;
@@ -25,19 +24,11 @@ public class DeleteLocationHandler : ICommandHandler<Result<Guid, Errors>, Delet
 
     public async Task<Result<Guid, Errors>> Handle(DeleteLocationCommand command, CancellationToken cancellationToken)
     {
-        var transactionScopeResult = await _transactionManager.BeginTransactionAsync(cancellationToken);
-
-        if (transactionScopeResult.IsFailure)
-        {
-            _logger.LogError(transactionScopeResult.Error.Message);
-            return transactionScopeResult.Error.ToErrors();
-        }
-
-        using var transactionScope = transactionScopeResult.Value;
-
         var id = command.Id;
 
-        var locResult = await _locationsRepository.GetByAsync(loc => loc.Id == id);
+        var locResult = await _locationsRepository.GetByIncludingInactiveAsync(
+            loc => loc.Id == id,
+            cancellationToken);
 
         if (locResult.IsFailure)
         {
@@ -53,6 +44,11 @@ public class DeleteLocationHandler : ICommandHandler<Result<Guid, Errors>, Delet
 
         var loc = locResult.Value.First();
 
+        if (!loc.IsActive)
+        {
+            return loc.Id;
+        }
+
         var result = await _locationsRepository.Delete(loc, false);
 
         if (result.IsFailure)
@@ -61,12 +57,12 @@ public class DeleteLocationHandler : ICommandHandler<Result<Guid, Errors>, Delet
             return result.Error.ToErrors();
         }
 
-        await _transactionManager.SaveChangesAsync(cancellationToken);
+        var saveChangesResult = await _transactionManager.SaveChangesAsync(cancellationToken);
 
-        var commitResult = transactionScope.Commit();
-        if (commitResult.IsFailure)
+        if (saveChangesResult.IsFailure)
         {
-            return commitResult.Error.ToErrors();
+            _logger.LogError(saveChangesResult.Error.Message);
+            return saveChangesResult.Error.ToErrors();
         }
 
         return loc.Id;

@@ -117,6 +117,17 @@ public sealed class LocationEndpointTests : DirectoryTestsBase
                 .SingleAsync(item => item.Id == deletedLocationId));
         Assert.False(deletedLocation.IsActive);
 
+        using var repeatedDeleteResponse = await Client.DeleteAsync($"/api/locations/{deletedLocationId}");
+        var repeatedDeleteEnvelope = await AssertSuccessEnvelopeAsync<Guid>(repeatedDeleteResponse);
+        Assert.Equal(deletedLocationId, repeatedDeleteEnvelope.Result);
+
+        var locationAfterRepeatedDelete = await ExecuteInDbAsync(dbContext =>
+            dbContext.Locations
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .SingleAsync(item => item.Id == deletedLocationId));
+        Assert.Equal(deletedLocation.UpdatedAt, locationAfterRepeatedDelete.UpdatedAt);
+
         using var getResponse = await Client.GetAsync($"/api/locations/{deletedLocationId}");
         await AssertErrorEnvelopeAsync(
             getResponse,

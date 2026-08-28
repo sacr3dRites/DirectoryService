@@ -2,7 +2,6 @@
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Database;
 using DirectoryService.Shared.CustomErrors;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Application.Departments.DeleteDepartment;
@@ -25,19 +24,11 @@ public class DeleteDepartmentHandler : ICommandHandler<Result<Guid, Errors>, Del
 
     public async Task<Result<Guid, Errors>> Handle(DeleteDepartmentCommand command, CancellationToken cancellationToken)
     {
-        var transactionScopeResult = await _transactionManager.BeginTransactionAsync(cancellationToken);
-
-        if (transactionScopeResult.IsFailure)
-        {
-            _logger.LogError(transactionScopeResult.Error.Message);
-            return transactionScopeResult.Error.ToErrors();
-        }
-
-        using var transactionScope = transactionScopeResult.Value;
-
         var id = command.Id;
 
-        var depResult = await _departmentsRepository.GetByAsync(dep => dep.Id == id);
+        var depResult = await _departmentsRepository.GetByIncludingInactiveAsync(
+            dep => dep.Id == id,
+            cancellationToken);
 
         if (depResult.IsFailure)
         {
@@ -53,6 +44,11 @@ public class DeleteDepartmentHandler : ICommandHandler<Result<Guid, Errors>, Del
 
         var dep = depResult.Value.First();
 
+        if (!dep.IsActive)
+        {
+            return dep.Id;
+        }
+
         var result = await _departmentsRepository.Delete(dep, false);
 
         if (result.IsFailure)
@@ -61,12 +57,12 @@ public class DeleteDepartmentHandler : ICommandHandler<Result<Guid, Errors>, Del
             return result.Error.ToErrors();
         }
 
-        await _transactionManager.SaveChangesAsync(cancellationToken);
+        var saveChangesResult = await _transactionManager.SaveChangesAsync(cancellationToken);
 
-        var commitResult = transactionScope.Commit();
-        if (commitResult.IsFailure)
+        if (saveChangesResult.IsFailure)
         {
-            return commitResult.Error.ToErrors();
+            _logger.LogError(saveChangesResult.Error.Message);
+            return saveChangesResult.Error.ToErrors();
         }
 
         return dep.Id;

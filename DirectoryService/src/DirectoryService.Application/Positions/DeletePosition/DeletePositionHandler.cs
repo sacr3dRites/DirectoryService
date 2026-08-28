@@ -2,7 +2,6 @@
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Database;
 using DirectoryService.Shared.CustomErrors;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Application.Positions.DeletePosition;
@@ -25,19 +24,11 @@ public class DeletePositionHandler : ICommandHandler<Result<Guid, Errors>, Delet
 
     public async Task<Result<Guid, Errors>> Handle(DeletePositionCommand command, CancellationToken cancellationToken)
     {
-        var transactionScopeResult = await _transactionManager.BeginTransactionAsync(cancellationToken);
-
-        if (transactionScopeResult.IsFailure)
-        {
-            _logger.LogError(transactionScopeResult.Error.Message);
-            return transactionScopeResult.Error.ToErrors();
-        }
-
-        using var transactionScope = transactionScopeResult.Value;
-
         var id = command.Id;
 
-        var posResult = await _positionRepository.GetByAsync(pos => pos.Id == id);
+        var posResult = await _positionRepository.GetByIncludingInactiveAsync(
+            pos => pos.Id == id,
+            cancellationToken);
 
         if (posResult.IsFailure)
         {
@@ -53,6 +44,11 @@ public class DeletePositionHandler : ICommandHandler<Result<Guid, Errors>, Delet
 
         var pos = posResult.Value.First();
 
+        if (!pos.IsActive)
+        {
+            return pos.Id;
+        }
+
         var result = await _positionRepository.Delete(pos, false);
 
         if (result.IsFailure)
@@ -61,12 +57,12 @@ public class DeletePositionHandler : ICommandHandler<Result<Guid, Errors>, Delet
             return result.Error.ToErrors();
         }
 
-        await _transactionManager.SaveChangesAsync(cancellationToken);
+        var saveChangesResult = await _transactionManager.SaveChangesAsync(cancellationToken);
 
-        var commitResult = transactionScope.Commit();
-        if (commitResult.IsFailure)
+        if (saveChangesResult.IsFailure)
         {
-            return commitResult.Error.ToErrors();
+            _logger.LogError(saveChangesResult.Error.Message);
+            return saveChangesResult.Error.ToErrors();
         }
 
         return pos.Id;

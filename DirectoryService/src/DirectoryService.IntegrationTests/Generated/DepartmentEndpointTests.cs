@@ -242,6 +242,17 @@ public sealed class DepartmentEndpointTests : DirectoryTestsBase
                 .SingleAsync(item => item.Id == deletedDepartmentId));
         Assert.False(deletedDepartment.IsActive);
 
+        using var repeatedDeleteResponse = await Client.DeleteAsync($"/api/departments/{deletedDepartmentId}");
+        var repeatedDeleteEnvelope = await AssertSuccessEnvelopeAsync<Guid>(repeatedDeleteResponse);
+        Assert.Equal(deletedDepartmentId, repeatedDeleteEnvelope.Result);
+
+        var departmentAfterRepeatedDelete = await ExecuteInDbAsync(dbContext =>
+            dbContext.Departments
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .SingleAsync(item => item.Id == deletedDepartmentId));
+        Assert.Equal(deletedDepartment.UpdatedAt, departmentAfterRepeatedDelete.UpdatedAt);
+
         using var getResponse = await Client.GetAsync($"/api/departments/{deletedDepartmentId}");
         await AssertErrorEnvelopeAsync(
             getResponse,
