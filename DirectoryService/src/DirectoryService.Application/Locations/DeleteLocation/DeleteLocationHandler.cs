@@ -45,6 +45,12 @@ public class DeleteLocationHandler : ICommandHandler<Result<Guid, Errors>, Delet
             return locResult.Error.ToErrors();
         }
 
+        if (!locResult.Value.Any())
+        {
+            _logger.LogError("No locations found");
+            return Error.NotFound("location.not.found", "No locations found").ToErrors();
+        }
+
         var loc = locResult.Value.First();
 
         var result = await _locationsRepository.Delete(loc, false);

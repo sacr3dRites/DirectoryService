@@ -45,6 +45,12 @@ public class DeleteDepartmentHandler : ICommandHandler<Result<Guid, Errors>, Del
             return depResult.Error.ToErrors();
         }
 
+        if (!depResult.Value.Any())
+        {
+            _logger.LogError("No departments found");
+            return Error.NotFound("department.not.found", "No departments found").ToErrors();
+        }
+
         var dep = depResult.Value.First();
 
         var result = await _departmentsRepository.Delete(dep, false);

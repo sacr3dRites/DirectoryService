@@ -45,6 +45,12 @@ public class DeletePositionHandler : ICommandHandler<Result<Guid, Errors>, Delet
             return posResult.Error.ToErrors();
         }
 
+        if (!posResult.Value.Any())
+        {
+            _logger.LogError("No positions found");
+            return Error.NotFound("position.not.found", "No positions found").ToErrors();
+        }
+
         var pos = posResult.Value.First();
 
         var result = await _positionRepository.Delete(pos, false);
