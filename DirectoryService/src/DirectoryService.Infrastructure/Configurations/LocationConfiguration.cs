@@ -11,6 +11,9 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
     public void Configure(EntityTypeBuilder<Location> builder)
     {
         builder.ToTable("locations");
+
+        builder.HasQueryFilter(x => x.IsActive);
+
         builder.HasKey(l => l.Id).HasName("pk_location");
 
         builder.Property(l => l.Id).HasColumnName("id");

@@ -35,12 +35,51 @@ public class DepartmentsRepository : IDepartmentsRepository
         return UnitResult.Success<Error>();
     }
 
+    public async Task<UnitResult<Error>> Delete(Department department, bool isActive)
+    {
+        try
+        {
+            department.ChangeActiveStatus(isActive);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            return Error.Failure("department.delete.failed", "Failed to delete department");
+        }
+
+        return UnitResult.Success<Error>();
+    }
+
     public async Task<Result<IReadOnlyList<Department>, Error>> GetByAsync(Expression<Func<Department, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
         try
         {
             return await _context.Departments
+                .Where(predicate)
+                .ToListAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            return Error.Failure("department.get.failed", "Failed to get departments");
+        }
+    }
+
+    public async Task<Result<IReadOnlyList<Department>, Error>> GetByIncludingInactiveAsync(
+        Expression<Func<Department, bool>> predicate,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await _context.Departments
+                .IgnoreQueryFilters()
                 .Where(predicate)
                 .ToListAsync(cancellationToken);
         }

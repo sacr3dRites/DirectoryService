@@ -34,12 +34,51 @@ public class PositionsesRepository : IPositionsRepository
         return UnitResult.Success<Error>();
     }
 
+    public async Task<UnitResult<Error>> Delete(Position pos, bool isActive)
+    {
+        try
+        {
+            pos.ChangeActiveStatus(isActive);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            return Error.Failure("position.delete.failed", "Failed to delete position");
+        }
+
+        return UnitResult.Success<Error>();
+    }
+
     public async Task<Result<IReadOnlyList<Position>, Error>> GetByAsync(Expression<Func<Position, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
         try
         {
             return await _context.Positions
+                .Where(predicate)
+                .ToListAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            return Error.Failure("position.get.failed", "Failed to get positions");
+        }
+    }
+
+    public async Task<Result<IReadOnlyList<Position>, Error>> GetByIncludingInactiveAsync(
+        Expression<Func<Position, bool>> predicate,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await _context.Positions
+                .IgnoreQueryFilters()
                 .Where(predicate)
                 .ToListAsync(cancellationToken);
         }

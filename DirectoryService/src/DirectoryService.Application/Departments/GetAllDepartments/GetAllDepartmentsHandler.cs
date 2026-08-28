@@ -38,13 +38,15 @@ public class GetAllDepartmentsHandler : IQueryHandler<GetDepartmentsQuery, Paged
 
         var pageCountQuery = """
                              SELECT COUNT(*) FROM departments
-                             WHERE @Search is NULL or name ILIKE @Search
+                             WHERE is_active = TRUE
+                               AND (@Search IS NULL OR name ILIKE @Search)
                              """;
 
         var departmentListItemQuery = $"""
                                        SELECT id, name, path, created_at as CreatedAt
                                        FROM departments
-                                       WHERE @Search is NULL or name ILIKE @Search
+                                       WHERE is_active = TRUE
+                                         AND (@Search IS NULL OR name ILIKE @Search)
                                        ORDER BY {sortBy} {sortDir}
                                        LIMIT @PageSize
                                        OFFSET @Offset
