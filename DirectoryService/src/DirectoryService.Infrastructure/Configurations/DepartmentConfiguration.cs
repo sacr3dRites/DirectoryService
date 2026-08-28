@@ -10,6 +10,8 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
 {
     public void Configure(EntityTypeBuilder<Department> builder)
     {
+        builder.HasQueryFilter(x => x.IsActive);
+
         builder.ToTable("departments");
 
         builder.HasKey(d => d.Id).HasName("pk_department");

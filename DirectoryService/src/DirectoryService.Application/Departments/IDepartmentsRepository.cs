@@ -9,6 +9,7 @@ namespace DirectoryService.Application.Departments;
 public interface IDepartmentsRepository
 {
     public Task<UnitResult<Error>> AddAsync(Department department, CancellationToken cancellationToken = default);
+    public Task<UnitResult<Error>> Delete(Department department, bool isActive);
 
     Task<Result<IReadOnlyList<Department>, Error>> GetByAsync(Expression<Func<Department, bool>> predicate,
         CancellationToken cancellationToken = default);

@@ -35,6 +35,24 @@ public class DepartmentsRepository : IDepartmentsRepository
         return UnitResult.Success<Error>();
     }
 
+    public async Task<UnitResult<Error>> Delete(Department department, bool isActive)
+    {
+        try
+        {
+            department.ChangeActiveStatus(isActive);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            return Error.Failure("department.delete.failed", "Failed to delete department");
+        }
+
+        return UnitResult.Success<Error>();
+    }
+
     public async Task<Result<IReadOnlyList<Department>, Error>> GetByAsync(Expression<Func<Department, bool>> predicate,
         CancellationToken cancellationToken = default)
     {

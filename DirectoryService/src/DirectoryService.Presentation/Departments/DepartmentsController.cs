@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Departments.CreateDepartment;
+using DirectoryService.Application.Departments.DeleteDepartment;
 using DirectoryService.Application.Departments.UpdateDepartmentLocations;
 using DirectoryService.Application.PaginationUtils;
 using DirectoryService.Contracts.Departments;
@@ -54,5 +55,16 @@ public class DepartmentsController : ControllerBase
     )
     {
         return await handler.Handle(query, cancellationToken);
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<EndpointResult<Guid>> SoftDelete(
+        [FromRoute] Guid id,
+        [FromServices] ICommandHandler<Result<Guid, Errors>, DeleteDepartmentCommand> commandHandler,
+        CancellationToken cancellationToken)
+    {
+        var command = new DeleteDepartmentCommand(id);
+
+        return await commandHandler.Handle(command, cancellationToken);
     }
 }

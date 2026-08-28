@@ -34,6 +34,24 @@ public class LocationsRepository : ILocationsRepository
         return UnitResult.Success<Error>();
     }
 
+    public async Task<UnitResult<Error>> Delete(Location location, bool isActive)
+    {
+        try
+        {
+            location.ChangeActiveStatus(isActive);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            return Error.Failure("location.delete.failed", "Failed to delete location");
+        }
+
+        return UnitResult.Success<Error>();
+    }
+
     public async Task<Result<IReadOnlyList<Location>, Error>> GetByAsync(
         Expression<Func<Location, bool>> predicate,
         CancellationToken cancellationToken = default)

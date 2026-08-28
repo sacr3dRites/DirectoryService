@@ -34,6 +34,24 @@ public class PositionsesRepository : IPositionsRepository
         return UnitResult.Success<Error>();
     }
 
+    public async Task<UnitResult<Error>> Delete(Position pos, bool isActive)
+    {
+        try
+        {
+            pos.ChangeActiveStatus(isActive);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            return Error.Failure("position.add.failed", "Failed to add position");
+        }
+
+        return UnitResult.Success<Error>();
+    }
+
     public async Task<Result<IReadOnlyList<Position>, Error>> GetByAsync(Expression<Func<Position, bool>> predicate,
         CancellationToken cancellationToken = default)
     {

@@ -1,0 +1,68 @@
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.Application.Abstractions;
+using DirectoryService.Application.Database;
+using DirectoryService.Shared.CustomErrors;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
+namespace DirectoryService.Application.Positions.DeletePosition;
+
+public class DeletePositionHandler : ICommandHandler<Result<Guid, Errors>, DeletePositionCommand>
+{
+    private readonly IPositionsRepository _positionRepository;
+    private readonly ILogger<DeletePositionHandler> _logger;
+    private readonly ITransactionManager _transactionManager;
+
+    public DeletePositionHandler(
+        ITransactionManager transactionManager,
+        IPositionsRepository positionsRepository,
+        ILogger<DeletePositionHandler> logger)
+    {
+        _transactionManager = transactionManager;
+        _logger = logger;
+        _positionRepository = positionsRepository;
+    }
+
+    public async Task<Result<Guid, Errors>> Handle(DeletePositionCommand command, CancellationToken cancellationToken)
+    {
+        var transactionScopeResult = await _transactionManager.BeginTransactionAsync(cancellationToken);
+
+        if (transactionScopeResult.IsFailure)
+        {
+            _logger.LogError(transactionScopeResult.Error.Message);
+            return transactionScopeResult.Error.ToErrors();
+        }
+
+        using var transactionScope = transactionScopeResult.Value;
+
+        var id = command.Id;
+
+        var posResult = await _positionRepository.GetByAsync(pos => pos.Id == id);
+
+        if (posResult.IsFailure)
+        {
+            _logger.LogError(posResult.Error.Message);
+            return posResult.Error.ToErrors();
+        }
+
+        var pos = posResult.Value.First();
+
+        var result = await _positionRepository.Delete(pos, false);
+
+        if (result.IsFailure)
+        {
+            _logger.LogError(result.Error.Message);
+            return result.Error.ToErrors();
+        }
+
+        await _transactionManager.SaveChangesAsync(cancellationToken);
+
+        var commitResult = transactionScope.Commit();
+        if (commitResult.IsFailure)
+        {
+            return commitResult.Error.ToErrors();
+        }
+
+        return pos.Id;
+    }
+}

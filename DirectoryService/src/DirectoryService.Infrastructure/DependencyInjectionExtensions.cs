@@ -47,6 +47,13 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IDepartmentsRepository, DepartmentsRepository>();
         services.AddScoped<IPositionsRepository, PositionsesRepository>();
         services.AddScoped<ITransactionManager, TransactionManager>();
+        services.AddHostedService<SoftDeleteService>();
+        services.AddOptions<SoftDeleteOptions>()
+            .Bind(configuration.GetRequiredSection(SoftDeleteOptions.SectionName))
+            .Validate(x => x.SoftDeleteInterval > TimeSpan.Zero)
+            .Validate(x => x.AgeOfRecords > TimeSpan.Zero)
+            .Validate(x => x.BatchSize > 0)
+            .ValidateOnStart();
 
         return services;
     }

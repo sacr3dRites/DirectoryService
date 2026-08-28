@@ -1,6 +1,7 @@
 using CSharpFunctionalExtensions;
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Locations.CreateLocation;
+using DirectoryService.Application.Locations.DeleteLocation;
 using DirectoryService.Application.PaginationUtils;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Shared.CustomErrors;
@@ -49,5 +50,16 @@ public class LocationsController : ControllerBase
     )
     {
         return await handler.Handle(query, cancellationToken);
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<EndpointResult<Guid>> Delete(
+        [FromRoute] Guid id,
+        [FromServices] ICommandHandler<Result<Guid, Errors>, DeleteLocationCommand> commandHandler,
+        CancellationToken cancellationToken)
+    {
+        var command = new DeleteLocationCommand(id);
+
+        return await commandHandler.Handle(command, cancellationToken);
     }
 }
