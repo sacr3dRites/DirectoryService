@@ -91,4 +91,39 @@ public sealed class PositionEndpointTests : DirectoryTestsBase
             dbContext.Set<DirectoryService.Domain.Shared.DepartmentPosition>().CountAsync());
         Assert.Equal(0, relationCount);
     }
+
+    [Fact]
+    public async Task DeletePosition_WhenItExists_SoftDeletesAndHidesItFromFilteredQueries()
+    {
+        using var deletedCreateResponse = await Client.PostAsJsonAsync(
+            "/api/positions",
+            new CreatePositionRequest("Deleted Position", "Position to delete", []));
+        var deletedCreateEnvelope = await AssertSuccessEnvelopeAsync<Guid>(deletedCreateResponse);
+        var deletedPositionId = AssertValidId(deletedCreateEnvelope.Result);
+
+        using var activeCreateResponse = await Client.PostAsJsonAsync(
+            "/api/positions",
+            new CreatePositionRequest("Active Position", "Position to keep", []));
+        var activeCreateEnvelope = await AssertSuccessEnvelopeAsync<Guid>(activeCreateResponse);
+        var activePositionId = AssertValidId(activeCreateEnvelope.Result);
+
+        using var deleteResponse = await Client.DeleteAsync($"/api/positions/{deletedPositionId}");
+
+        var deleteEnvelope = await AssertSuccessEnvelopeAsync<Guid>(deleteResponse);
+        Assert.Equal(deletedPositionId, deleteEnvelope.Result);
+
+        var deletedPosition = await ExecuteInDbAsync(dbContext =>
+            dbContext.Positions
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .SingleAsync(item => item.Id == deletedPositionId));
+        Assert.False(deletedPosition.IsActive);
+
+        var visiblePositionIds = await ExecuteInDbAsync(dbContext =>
+            dbContext.Positions
+                .AsNoTracking()
+                .Select(item => item.Id)
+                .ToArrayAsync());
+        Assert.Equal([activePositionId], visiblePositionIds);
+    }
 }

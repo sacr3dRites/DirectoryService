@@ -2,6 +2,7 @@ using System.Net;
 using DirectoryService.Application.PaginationUtils;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Shared.CustomErrors;
+using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.IntegrationTests.Generated;
 
@@ -92,5 +93,43 @@ public sealed class LocationEndpointTests : DirectoryTestsBase
         Assert.Empty(page.Items);
         Assert.Equal(0, page.PageCount);
         Assert.Equal(0, page.TotalCount);
+    }
+
+    [Fact]
+    public async Task DeleteLocation_WhenItExists_SoftDeletesAndHidesItFromQueries()
+    {
+        var deletedLocationId = await CreateLocationThroughApiAsync(
+            "Deleted Office",
+            "Deleted Street 1");
+        var activeLocationId = await CreateLocationThroughApiAsync(
+            "Active Office",
+            "Active Street 1");
+
+        using var deleteResponse = await Client.DeleteAsync($"/api/locations/{deletedLocationId}");
+
+        var deleteEnvelope = await AssertSuccessEnvelopeAsync<Guid>(deleteResponse);
+        Assert.Equal(deletedLocationId, deleteEnvelope.Result);
+
+        var deletedLocation = await ExecuteInDbAsync(dbContext =>
+            dbContext.Locations
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .SingleAsync(item => item.Id == deletedLocationId));
+        Assert.False(deletedLocation.IsActive);
+
+        using var getResponse = await Client.GetAsync($"/api/locations/{deletedLocationId}");
+        await AssertErrorEnvelopeAsync(
+            getResponse,
+            HttpStatusCode.NotFound,
+            ErrorType.NOT_FOUND,
+            "record.not.found");
+
+        using var listResponse = await Client.GetAsync(
+            "/api/locations?sortBy=Name&sortDirection=Asc&page=1&pageSize=20");
+        var listEnvelope = await AssertSuccessEnvelopeAsync<PagedResult<LocationListItemDto>>(listResponse);
+        var page = Assert.IsType<PagedResult<LocationListItemDto>>(listEnvelope.Result);
+
+        Assert.Equal(1, page.TotalCount);
+        Assert.Equal(activeLocationId, Assert.Single(page.Items).Id);
     }
 }

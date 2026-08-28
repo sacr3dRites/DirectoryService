@@ -216,4 +216,45 @@ public sealed class DepartmentEndpointTests : DirectoryTestsBase
         Assert.Equal(alphaId, item.Id);
         Assert.Equal("Alpha Team", item.Name);
     }
+
+    [Fact]
+    public async Task DeleteDepartment_WhenItExists_SoftDeletesAndHidesItFromQueries()
+    {
+        var locationId = await CreateLocationThroughApiAsync();
+        var deletedDepartmentId = await CreateDepartmentThroughApiAsync(
+            [locationId],
+            "Deleted Department",
+            "deleted-department");
+        var activeDepartmentId = await CreateDepartmentThroughApiAsync(
+            [locationId],
+            "Active Department",
+            "active-department");
+
+        using var deleteResponse = await Client.DeleteAsync($"/api/departments/{deletedDepartmentId}");
+
+        var deleteEnvelope = await AssertSuccessEnvelopeAsync<Guid>(deleteResponse);
+        Assert.Equal(deletedDepartmentId, deleteEnvelope.Result);
+
+        var deletedDepartment = await ExecuteInDbAsync(dbContext =>
+            dbContext.Departments
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .SingleAsync(item => item.Id == deletedDepartmentId));
+        Assert.False(deletedDepartment.IsActive);
+
+        using var getResponse = await Client.GetAsync($"/api/departments/{deletedDepartmentId}");
+        await AssertErrorEnvelopeAsync(
+            getResponse,
+            HttpStatusCode.NotFound,
+            ErrorType.NOT_FOUND,
+            "record.not.found");
+
+        using var listResponse = await Client.GetAsync(
+            "/api/departments?sortBy=Name&sortDirection=Asc&page=1&pageSize=20");
+        var listEnvelope = await AssertSuccessEnvelopeAsync<PagedResult<DepartmentListItemDto>>(listResponse);
+        var page = Assert.IsType<PagedResult<DepartmentListItemDto>>(listEnvelope.Result);
+
+        Assert.Equal(1, page.TotalCount);
+        Assert.Equal(activeDepartmentId, Assert.Single(page.Items).Id);
+    }
 }
