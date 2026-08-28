@@ -46,7 +46,7 @@ public class PositionsesRepository : IPositionsRepository
         }
         catch (Exception e)
         {
-            return Error.Failure("position.add.failed", "Failed to add position");
+            return Error.Failure("position.delete.failed", "Failed to delete position");
         }
 
         return UnitResult.Success<Error>();
