@@ -39,6 +39,17 @@ public class DepartmentsController : ControllerBase
         return await handler.Handle(command, cancellationToken);
     }
 
+    [HttpPut("{id:guid}")]
+    public async Task<EndpointResult<Guid>> TransferDepartment(
+        [FromServices] ICommandHandler<Result<Guid, Errors>, TransferDepartmentCommand> handler,
+        [FromBody] TransferDepartmentRequest request,
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var command = new TransferDepartmentCommand(id, request);
+        return await handler.Handle(command, cancellationToken);
+    }
+
     [HttpGet("{id:guid}")]
     public async Task<EndpointResult<DepartmentDto>> Get(
         [FromRoute] Guid id,
