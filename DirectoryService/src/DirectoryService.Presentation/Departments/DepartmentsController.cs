@@ -6,7 +6,6 @@ using DirectoryService.Application.Departments.TransferDepartment;
 using DirectoryService.Application.Departments.UpdateDepartmentLocations;
 using DirectoryService.Application.PaginationUtils;
 using DirectoryService.Contracts.Departments;
-using DirectoryService.Domain.Departments;
 using DirectoryService.Shared.CustomErrors;
 using DirectoryService.Shared.EndpointResults;
 using Microsoft.AspNetCore.Mvc;
@@ -63,8 +62,7 @@ public class DepartmentsController : ControllerBase
     public async Task<EndpointResult<PagedResult<DepartmentListItemDto>>> GetAllDepartments(
         [FromQuery] GetDepartmentsQuery query,
         [FromServices] IQueryHandler<GetDepartmentsQuery, PagedResult<DepartmentListItemDto>> handler,
-        CancellationToken cancellationToken
-    )
+        CancellationToken cancellationToken)
     {
         return await handler.Handle(query, cancellationToken);
     }
@@ -78,5 +76,41 @@ public class DepartmentsController : ControllerBase
         var command = new DeleteDepartmentCommand(id);
 
         return await commandHandler.Handle(command, cancellationToken);
+    }
+
+    [HttpGet("tree")]
+    public async Task<EndpointResult<PagedResult<DepartmentTree>>> GetAllRootDepartmentTrees(
+        [FromQuery] GetAllRootDepartmentTreesQuery query,
+        [FromServices] IQueryHandler<GetAllRootDepartmentTreesQuery, PagedResult<DepartmentTree>> handler,
+        CancellationToken cancellationToken)
+    {
+        return await handler.Handle(query, cancellationToken);
+    }
+
+    [HttpGet("{id:guid}/children")]
+    public async Task<EndpointResult<PagedResult<DepartmentDto>>> GetAllDepartmentChildren(
+        [FromRoute] Guid id,
+        [FromServices] IQueryByIdHandler<PagedResult<DepartmentDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        return await handler.Handle(id, cancellationToken);
+    }
+
+    [HttpGet("{id:guid}/ancestors")]
+    public async Task<EndpointResult<PagedResult<DepartmentDto>>> GetAllDepartmentAncestors(
+        [FromRoute] Guid id,
+        [FromServices] IQueryByIdHandler<PagedResult<DepartmentDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        return await handler.Handle(id, cancellationToken);
+    }
+
+    [HttpGet("tree/search")]
+    public async Task<EndpointResult<PagedResult<DepartmentTree>>> GetSelectedDepartmentTree(
+        [FromQuery] GetSelectedDepartmentTreeQuery query,
+        [FromServices] IQueryHandler<GetSelectedDepartmentTreeQuery, PagedResult<DepartmentTree>> handler,
+        CancellationToken cancellationToken)
+    {
+        return await handler.Handle(query, cancellationToken);
     }
 }

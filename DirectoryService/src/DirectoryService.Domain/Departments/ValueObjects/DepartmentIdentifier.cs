@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System.Text.RegularExpressions;
+using CSharpFunctionalExtensions;
 using DirectoryService.Shared.CustomErrors;
 
 namespace DirectoryService.Domain.Departments.ValueObjects;
@@ -25,6 +26,13 @@ public record DepartmentIdentifier
         }
 
         if (string.IsNullOrWhiteSpace(identifier))
+        {
+            errors.Add(GeneralErrors.ValueIsInvalid("идентификатор"));
+        }
+
+        var valid = Regex.IsMatch(identifier, @"^\w+$");
+
+        if (!valid)
         {
             errors.Add(GeneralErrors.ValueIsInvalid("идентификатор"));
         }

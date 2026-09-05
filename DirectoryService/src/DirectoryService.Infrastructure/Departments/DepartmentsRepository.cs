@@ -149,13 +149,13 @@ public class DepartmentsRepository : IDepartmentsRepository
     public async Task<UnitResult<Error>> TransferDepartment(Department? parentDepartment, Department department,
         CancellationToken cancellationToken = default)
     {
-        var parentDepth = parentDepartment?.Depth ?? 0;
+        var newDepth = (short)(parentDepartment?.Depth + 1 ?? 0);
         var identifier = DepartmentPath.Create(department.Identifier, parentDepartment);
         var depId = department.Id;
         const string sqlQuery = """
                                 UPDATE departments
                                 SET parent_id = @parent,
-                                    depth =  @parentDepth+1,
+                                    depth =  @parentDepth,
                                     path = @identifier::ltree
                                 WHERE id = @depId
                                 """;
@@ -163,7 +163,7 @@ public class DepartmentsRepository : IDepartmentsRepository
         var dbConn = _context.Database.GetDbConnection();
 
         await dbConn.ExecuteAsync(sqlQuery,
-            new { parent = parentDepartment?.Id, parentDepth, identifier = identifier.Value, depId });
+            new { parent = parentDepartment?.Id, parentDepth = newDepth, identifier = identifier.Value, depId });
 
         return UnitResult.Success<Error>();
     }
