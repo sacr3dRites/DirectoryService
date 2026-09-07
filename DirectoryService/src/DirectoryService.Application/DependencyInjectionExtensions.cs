@@ -37,6 +37,9 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ICommandHandler<Result<Guid, Errors>, DeleteDepartmentCommand>, DeleteDepartmentHandler>();
         services.AddScoped<IQueryByIdHandler<DepartmentDto>, DepartmentQueryByIdHandler>();
         services.AddScoped<IQueryByIdHandler<LocationDto>, LocationQueryByIdHandler>();
+        services
+            .AddScoped<IQueryHandler<GetAllRootDepartmentTreesQuery, PagedResult<DepartmentTree>>,
+                GetAllRootDepartmentTreesHandler>();
         services.AddScoped<IQueryHandler<LocationsTopDto[]>, GetTopLocationsDapperHandler>();
         services
             .AddScoped<IQueryHandler<GetDepartmentsQuery, PagedResult<DepartmentListItemDto>>,
