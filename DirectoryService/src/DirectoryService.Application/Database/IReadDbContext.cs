@@ -2,7 +2,7 @@
 using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Shared;
 
-namespace DirectoryService.Infrastructure.Database;
+namespace DirectoryService.Application.Database;
 
 public interface IReadDbContext
 {

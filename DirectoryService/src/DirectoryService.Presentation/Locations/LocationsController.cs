@@ -2,6 +2,7 @@ using CSharpFunctionalExtensions;
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Locations.CreateLocation;
 using DirectoryService.Application.Locations.DeleteLocation;
+using DirectoryService.Application.Locations.GetLocations;
 using DirectoryService.Application.PaginationUtils;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Shared.CustomErrors;
@@ -44,11 +45,19 @@ public class LocationsController : ControllerBase
 
     [HttpGet]
     public async Task<EndpointResult<PagedResult<LocationListItemDto>>> GetLocations(
-        [FromQuery] GetLocationsQuery query,
+        [FromQuery] GetLocationsRequest request,
         [FromServices] IQueryHandler<GetLocationsQuery, PagedResult<LocationListItemDto>> handler,
         CancellationToken cancellationToken
     )
     {
+        var query = new GetLocationsQuery(
+            request.Search,
+            request.MinDepartmentCount,
+            request.SortBy,
+            request.SortDirection,
+            request.Page,
+            request.PageSize);
+
         return await handler.Handle(query, cancellationToken);
     }
 

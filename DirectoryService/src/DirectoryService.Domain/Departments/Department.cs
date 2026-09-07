@@ -1,6 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Domain.Departments.ValueObjects;
-using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Shared;
 using DirectoryService.Shared.CustomErrors;
 
@@ -24,7 +23,7 @@ public class Department
     {
         Id = Guid.NewGuid();
         Name = name;
-        Depth = 0;
+        Depth = (short)(parent?.Depth + 1 ?? 0);
         IsActive = true;
         Parent = parent;
         Identifier = identifier;
@@ -129,7 +128,12 @@ public class Department
         return Result.Success();
     }
 
-    private bool IsAncestorOf(Department department)
+    /// <summary>
+    /// Возвращает true если this департамент найден среди родителей этого депа, false если нет
+    /// </summary>
+    /// <param name="department"> департамент для которого проверяем является ли он чайлдом </param>
+    /// <returns> является департамент чайлдом this департамента или нет </returns>
+    public bool IsAncestorOf(Department department)
     {
         var current = department.Parent;
 

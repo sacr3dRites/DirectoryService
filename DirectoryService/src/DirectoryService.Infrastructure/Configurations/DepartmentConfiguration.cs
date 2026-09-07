@@ -1,5 +1,4 @@
-﻿using DirectoryService.Domain;
-using DirectoryService.Domain.Departments;
+﻿using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Departments.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -27,14 +26,15 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             .IsUnique()
             .HasDatabaseName("idx_department_identifier");
 
-        builder.ComplexProperty(d => d.Path, nb =>
+        builder.OwnsOne(d => d.Path, nb =>
         {
             nb.Property(d => d.Value)
                 .IsRequired()
+                .HasColumnType("ltree")
                 .HasColumnName("path");
         });
 
-        builder.ComplexProperty(d => d.Name, nb =>
+        builder.OwnsOne(d => d.Name, nb =>
         {
             nb.Property(d => d.Value)
                 .IsRequired()
@@ -64,6 +64,8 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
         builder.Property(d => d.Depth)
             .IsRequired()
             .HasColumnName("depth");
+        
+            ///Добавить children departments
 
         builder.HasMany(d => d.Locations)
             .WithOne(l => l.Department)

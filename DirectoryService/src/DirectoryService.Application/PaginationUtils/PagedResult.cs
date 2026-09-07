@@ -1,6 +1,4 @@
-﻿using DirectoryService.Contracts.Departments;
-
-namespace DirectoryService.Application.PaginationUtils;
+﻿namespace DirectoryService.Application.PaginationUtils;
 
 public class PagedResult<T>(T[] items, int pageNumber, int pageSize, int pageCount, int totalCount)
 {

@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using CSharpFunctionalExtensions;
 using DirectoryService.Domain.Departments;
+using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Shared;
 using DirectoryService.Shared.CustomErrors;
 
@@ -22,4 +23,11 @@ public interface IDepartmentsRepository
 
     Task<UnitResult<Error>> AddDepartmentLocations(IEnumerable<DepartmentLocation> departmentLocations,
         CancellationToken cancellationToken = default);
+
+    Task<UnitResult<Error>> TransferDepartment(Department? parent, Department department,
+        CancellationToken cancellationToken = default);
+
+    Task<UnitResult<Error>> UpdateChildDepartments(Guid rootId,DepartmentPath oldParentDepartmentPath);
+    Task<Result<Department, Error>> GetByIdWithLock(Guid commandDepartmentId, CancellationToken cancellationToken);
+    Task<UnitResult<Error>> LockDescendants(DepartmentPath departmentPath, CancellationToken cancellationToken);
 }

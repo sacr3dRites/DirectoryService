@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-
-namespace DirectoryService.Infrastructure;
+﻿namespace DirectoryService.Infrastructure;
 
 public class SoftDeleteOptions
 {
