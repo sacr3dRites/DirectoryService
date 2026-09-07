@@ -31,9 +31,12 @@ public class
 
         var normalizedTerm = term.ToLower();
 
+        var matchingDepartments = _context.DepartmentsRead
+            .Where(dep => dep.Name.Value.ToLower().Contains(normalizedTerm));
 
-        var trees = await _context.DepartmentsRead
-            .Where(dep => dep.Name.Value.ToLower().Contains(normalizedTerm))
+        var totalCount = await matchingDepartments.CountAsync(cancellationToken);
+
+        var trees = await matchingDepartments
             .OrderBy(dep => dep.Name.Value)
             .Skip((query.Page - 1) * query.PageSize)
             .Take(query.PageSize)
@@ -47,8 +50,6 @@ public class
                 dep.Children.Count(child => child.IsActive)
             ))
             .ToArrayAsync(cancellationToken);
-
-        var totalCount = trees.Length;
 
         var pageCount = (int)Math.Ceiling(totalCount / (double)query.PageSize);
 
