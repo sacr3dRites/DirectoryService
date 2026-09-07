@@ -121,9 +121,9 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpGet("{id:guid}/ancestors")]
-    public async Task<EndpointResult<PagedResult<DepartmentDto>>> GetAllDepartmentAncestors(
+    public async Task<EndpointResult<DepartmentTree[]>> GetAllDepartmentAncestors(
         [FromRoute] Guid id,
-        [FromServices] IQueryByIdHandler<PagedResult<DepartmentDto>> handler,
+        [FromServices] IQueryByIdHandler<DepartmentTree[]> handler,
         CancellationToken cancellationToken)
     {
         return await handler.Handle(id, cancellationToken);
