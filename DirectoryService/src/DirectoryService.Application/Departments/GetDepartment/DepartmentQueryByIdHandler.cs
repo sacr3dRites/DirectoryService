@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Application.Abstractions;
+using DirectoryService.Application.Database;
 using DirectoryService.Contracts.Departments;
-using DirectoryService.Infrastructure.Database;
 using DirectoryService.Shared.CustomErrors;
 using Microsoft.EntityFrameworkCore;
 

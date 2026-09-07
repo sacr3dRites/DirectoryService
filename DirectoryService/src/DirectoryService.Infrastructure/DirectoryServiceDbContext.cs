@@ -1,8 +1,8 @@
-﻿using DirectoryService.Domain.Departments;
+﻿using DirectoryService.Application.Database;
+using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Positions;
 using DirectoryService.Domain.Shared;
-using DirectoryService.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Infrastructure;

@@ -1,5 +1,4 @@
-﻿using System.Data;
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using DirectoryService.Application.Database;
 using DirectoryService.Shared.CustomErrors;
 using Microsoft.EntityFrameworkCore.Storage;

@@ -1,7 +1,5 @@
 using DirectoryService.Application;
-using DirectoryService.Application.Locations;
 using DirectoryService.Infrastructure;
-using DirectoryService.Infrastructure.Locations;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,4 +31,7 @@ app.MapControllers();
 
 app.Run();
 
-public partial class Program;
+namespace DirectoryService.Presentation
+{
+    public partial class Program;
+}

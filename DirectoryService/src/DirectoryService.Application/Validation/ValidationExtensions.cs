@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using DirectoryService.Shared.CustomErrors;
+﻿using DirectoryService.Shared.CustomErrors;
 using FluentValidation.Results;
 
 namespace DirectoryService.Application.Validation;

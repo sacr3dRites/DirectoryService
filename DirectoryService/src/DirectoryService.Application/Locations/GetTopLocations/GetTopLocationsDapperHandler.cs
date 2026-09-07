@@ -3,7 +3,6 @@ using Dapper;
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Database;
 using DirectoryService.Contracts.Locations;
-using DirectoryService.Infrastructure.Database;
 using DirectoryService.Shared.CustomErrors;
 
 namespace DirectoryService.Application.Locations.GetTopLocations;

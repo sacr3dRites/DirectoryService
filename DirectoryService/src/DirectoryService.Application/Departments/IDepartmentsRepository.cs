@@ -4,7 +4,6 @@ using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Shared;
 using DirectoryService.Shared.CustomErrors;
-using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Application.Departments;
 
