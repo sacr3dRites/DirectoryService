@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using DirectoryService.Contracts.Shared;
 
-namespace DirectoryService.Contracts.Departments;
+namespace DirectoryService.Application.Departments.GetDepartmentTrees;
 
 public record GetAllRootDepartmentTreesQuery(
     SortBy SortBy,

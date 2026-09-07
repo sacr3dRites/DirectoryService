@@ -2,6 +2,8 @@
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Departments.CreateDepartment;
 using DirectoryService.Application.Departments.DeleteDepartment;
+using DirectoryService.Application.Departments.GetAllDepartments;
+using DirectoryService.Application.Departments.GetDepartmentTrees;
 using DirectoryService.Application.Departments.TransferDepartment;
 using DirectoryService.Application.Departments.UpdateDepartmentLocations;
 using DirectoryService.Application.PaginationUtils;
@@ -60,10 +62,17 @@ public class DepartmentsController : ControllerBase
 
     [HttpGet]
     public async Task<EndpointResult<PagedResult<DepartmentListItemDto>>> GetAllDepartments(
-        [FromQuery] GetDepartmentsQuery query,
+        [FromQuery] GetDepartmentsRequest request,
         [FromServices] IQueryHandler<GetDepartmentsQuery, PagedResult<DepartmentListItemDto>> handler,
         CancellationToken cancellationToken)
     {
+        var query = new GetDepartmentsQuery(
+            request.Search,
+            request.SortBy,
+            request.SortDirection,
+            request.Page,
+            request.PageSize);
+
         return await handler.Handle(query, cancellationToken);
     }
 
@@ -80,10 +89,16 @@ public class DepartmentsController : ControllerBase
 
     [HttpGet("tree")]
     public async Task<EndpointResult<PagedResult<DepartmentTree>>> GetAllRootDepartmentTrees(
-        [FromQuery] GetAllRootDepartmentTreesQuery query,
+        [FromQuery] GetAllRootDepartmentTreesRequest request,
         [FromServices] IQueryHandler<GetAllRootDepartmentTreesQuery, PagedResult<DepartmentTree>> handler,
         CancellationToken cancellationToken)
     {
+        var query = new GetAllRootDepartmentTreesQuery(
+            request.SortBy,
+            request.SortDirection,
+            request.Page,
+            request.PageSize);
+
         return await handler.Handle(query, cancellationToken);
     }
 

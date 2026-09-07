@@ -4,6 +4,7 @@ using DirectoryService.Application.Departments.CreateDepartment;
 using DirectoryService.Application.Departments.DeleteDepartment;
 using DirectoryService.Application.Departments.GetAllDepartments;
 using DirectoryService.Application.Departments.GetDepartment;
+using DirectoryService.Application.Departments.GetDepartmentTrees;
 using DirectoryService.Application.Departments.TransferDepartment;
 using DirectoryService.Application.Departments.UpdateDepartmentLocations;
 using DirectoryService.Application.Locations.CreateLocation;
