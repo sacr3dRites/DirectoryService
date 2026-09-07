@@ -5,6 +5,7 @@ using DirectoryService.Application.Departments.DeleteDepartment;
 using DirectoryService.Application.Departments.GetAllDepartmentChildren;
 using DirectoryService.Application.Departments.GetAllDepartments;
 using DirectoryService.Application.Departments.GetDepartmentTrees;
+using DirectoryService.Application.Departments.GetSelectedDepartmentTree;
 using DirectoryService.Application.Departments.TransferDepartment;
 using DirectoryService.Application.Departments.UpdateDepartmentLocations;
 using DirectoryService.Application.PaginationUtils;
