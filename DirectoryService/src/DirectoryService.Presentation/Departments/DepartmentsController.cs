@@ -2,6 +2,7 @@
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Departments.CreateDepartment;
 using DirectoryService.Application.Departments.DeleteDepartment;
+using DirectoryService.Application.Departments.GetAllDepartmentChildren;
 using DirectoryService.Application.Departments.GetAllDepartments;
 using DirectoryService.Application.Departments.GetDepartmentTrees;
 using DirectoryService.Application.Departments.TransferDepartment;
@@ -103,12 +104,20 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpGet("{id:guid}/children")]
-    public async Task<EndpointResult<PagedResult<DepartmentDto>>> GetAllDepartmentChildren(
+    public async Task<EndpointResult<PagedResult<DepartmentTree>>> GetAllDepartmentChildren(
         [FromRoute] Guid id,
-        [FromServices] IQueryByIdHandler<PagedResult<DepartmentDto>> handler,
+        [FromQuery] GetAllDepartmentChildrenRequest request,
+        [FromServices] IQueryHandler<GetAllDepartmentChildrenQuery, PagedResult<DepartmentTree>> handler,
         CancellationToken cancellationToken)
     {
-        return await handler.Handle(id, cancellationToken);
+        var query = new GetAllDepartmentChildrenQuery(
+            id,
+            request.SortBy,
+            request.SortDirection,
+            request.Page,
+            request.PageSize);
+
+        return await handler.Handle(query, cancellationToken);
     }
 
     [HttpGet("{id:guid}/ancestors")]

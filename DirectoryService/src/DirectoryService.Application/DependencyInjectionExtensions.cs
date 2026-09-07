@@ -2,6 +2,7 @@
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Departments.CreateDepartment;
 using DirectoryService.Application.Departments.DeleteDepartment;
+using DirectoryService.Application.Departments.GetAllDepartmentChildren;
 using DirectoryService.Application.Departments.GetAllDepartments;
 using DirectoryService.Application.Departments.GetDepartment;
 using DirectoryService.Application.Departments.GetDepartmentTrees;
@@ -40,6 +41,9 @@ public static class DependencyInjectionExtensions
         services
             .AddScoped<IQueryHandler<GetAllRootDepartmentTreesQuery, PagedResult<DepartmentTree>>,
                 GetAllRootDepartmentTreesHandler>();
+        services
+            .AddScoped<IQueryHandler<GetAllDepartmentChildrenQuery, PagedResult<DepartmentTree>>,
+                GetAllDepartmentChildrenHandler>();
         services.AddScoped<IQueryHandler<LocationsTopDto[]>, GetTopLocationsDapperHandler>();
         services
             .AddScoped<IQueryHandler<GetDepartmentsQuery, PagedResult<DepartmentListItemDto>>,
