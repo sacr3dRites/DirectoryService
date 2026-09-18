@@ -3,38 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@base-ui/react";
-import { useState } from "react";
+import useTodos from "./useTodos";
 
-type Todo = {
-  id: number;
+export type Todo = {
+  id: string;
   text: string;
   completed: boolean;
 };
 
 export default function Todo() {
-  const [todos, setTodos] = useState<Todo[]>([
-    { id: 1, text: "Learn TypeScript", completed: false },
-    { id: 2, text: "Build a Next.js app", completed: true },
-  ]);
-
-  const [input, setInput] = useState("");
-
-  const addTodo = () => {
-    const newTodo: Todo = {
-      id: todos.length + 1,
-      text: input,
-      completed: false,
-    };
-    setTodos([...todos, newTodo]);
-  };
-
-  const toggleTodo = (id: number) => {
-    setTodos((prevTodos) =>
-      prevTodos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
-      ),
-    );
-  };
+  const { todos, input, setInput, addTodo, toggleTodo, deleteTodo, remaining } =
+    useTodos();
 
   return (
     <div className="min-h-screen w-full bg-muted/30 px-4 py-10 sm:px-6">
@@ -70,13 +49,14 @@ export default function Todo() {
             <h2 id="tasks-heading" className="text-lg font-semibold">
               Все задачи
             </h2>
-            <span className="text-sm text-muted-foreground">
-              {todos.length} всего
+            <span className="flex flex-col text-right text-sm text-muted-foreground">
+              <span>{todos.length} всего</span>
+              <span>{remaining} не выполнено</span>
             </span>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            {todos.map((todo) => (
+            {todos.map((todo, index) => (
               <Card key={todo.id} className="transition-shadow hover:shadow-md">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-4">
@@ -84,13 +64,20 @@ export default function Todo() {
                       checked={todo.completed}
                       onCheckedChange={() => toggleTodo(todo.id)}
                     />
-                    <CardTitle>Задача #{todo.id}</CardTitle>
+                    <CardTitle>Задача #{index + 1}</CardTitle>
                     <span
                       className="text-lg"
                       aria-label={todo.completed ? "Выполнено" : "Не выполнено"}
                     >
                       {todo.completed ? "✅" : "❌"}
                     </span>
+                    <Button
+                      onClick={() => deleteTodo(todo.id)}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Удалить
+                    </Button>
                   </div>
                 </CardHeader>
                 <CardContent>
