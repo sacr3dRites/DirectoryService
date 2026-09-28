@@ -1,14 +1,10 @@
 import { Metadata } from "next";
+import Locations from "./locations";
 
 export const metadata: Metadata = {
   title: "Локации | Directory Service",
 };
 
-export default function Locations() {
-  return (
-    <main>
-      <h1>Локации</h1>
-      <section />
-    </main>
-  );
+export default function LocationsPage() {
+  return <Locations />;
 }
