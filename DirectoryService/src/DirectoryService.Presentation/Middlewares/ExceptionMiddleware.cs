@@ -37,7 +37,11 @@ public class ExceptionMiddleware
 
             BadRequestException ex => (StatusCodes.Status400BadRequest, ex.Error),
 
-            FailureException ex => (StatusCodes.Status500InternalServerError, ex.Error)
+            FailureException ex => (StatusCodes.Status500InternalServerError, ex.Error),
+
+            _ => (
+                StatusCodes.Status500InternalServerError,
+                Error.Failure("server.error", "Внутренняя ошибка сервера"))
         };
 
         var envelope = Envelope.Error(error);

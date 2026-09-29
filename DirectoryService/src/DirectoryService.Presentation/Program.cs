@@ -2,6 +2,7 @@ using DirectoryService.Application;
 using DirectoryService.Application.Locations;
 using DirectoryService.Infrastructure;
 using DirectoryService.Infrastructure.Locations;
+using DirectoryService.Presentation.Configuration;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,13 +16,14 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
-builder.Services.AddOpenApi();
+builder.Services.AddConfiguration(builder.Configuration);
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddDirectoryService(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
 
 
 var app = builder.Build();
+app.AddExceptionMiddleware();
 
 if (app.Environment.IsDevelopment())
 {
@@ -29,6 +31,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "DirectoryService"));
 }
 
+app.UseRouting();
+app.UseFrontendCors();
 app.MapControllers();
 
 app.Run();

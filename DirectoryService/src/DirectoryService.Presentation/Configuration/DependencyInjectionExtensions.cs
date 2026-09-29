@@ -9,12 +9,14 @@ namespace DirectoryService.Presentation.Configuration;
 
 public static class DependencyInjectionExtensions
 {
-    public static IServiceCollection AddConfiguration(this IServiceCollection services,
+    public static IServiceCollection AddConfiguration(
+        this IServiceCollection services,
         IConfiguration configuration)
     {
         return services
             .AddSerilogLogging(configuration)
-            .AddOpenApiSpec();
+            .AddOpenApiSpec()
+            .AddCors();
     }
 
     public static IApplicationBuilder AddExceptionMiddleware(this IApplicationBuilder app)
@@ -22,10 +24,19 @@ public static class DependencyInjectionExtensions
         return app.UseMiddleware<ExceptionMiddleware>();
     }
 
+    public static IApplicationBuilder UseFrontendCors(this IApplicationBuilder app)
+    {
+        return app.UseCors(builder =>
+        {
+            builder.WithOrigins("http://localhost:3000")
+                .AllowCredentials()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+    }
+
     private static IServiceCollection AddOpenApiSpec(this IServiceCollection services)
     {
-        services.AddOpenApi();
-
         services.AddOpenApi(options =>
         {
             options.AddSchemaTransformer((schema, context, _) =>
